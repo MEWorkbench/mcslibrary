@@ -1,0 +1,124 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>pt.uminho.ceb.biosystems.mcslibrary</groupId>
+	<artifactId>mcslibrary</artifactId>
+	<version>1.0.2-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>mcslibrary</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>pt.uminho.ceb.biosystems.mew</groupId>
+			<artifactId>mew-core</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+<!-- 			<exclusions> -->
+<!-- 				<exclusion> -->
+<!-- 					<artifactId>cplex</artifactId> -->
+<!-- 					<groupId>com.ibm.ilog</groupId> -->
+<!-- 				</exclusion> -->
+<!-- 			</exclusions> -->
+		</dependency>
+
+
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.ibm.ilog</groupId> -->
+<!-- 			<artifactId>cplex</artifactId> -->
+<!-- 			<scope>system</scope> -->
+<!-- 			<systemPath>${basedir}/buildlib/cplex.jar</systemPath> -->
+<!-- 			<version>0</version> -->
+<!-- 		</dependency> -->
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.googlecode.efficient-java-matrix-library</groupId>
+			<artifactId>ejml</artifactId>
+			<version>0.25</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.0.19</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.combinatoricslib</groupId>
+			<artifactId>combinatoricslib</artifactId>
+			<version>2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.apporiented</groupId>
+			<artifactId>hierarchical-clustering</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.10</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<inherited>false</inherited>
+						<configuration>
+							<stripVersion>true</stripVersion>
+							<excludeGroupIds>org.optflux</excludeGroupIds>
+							<excludeArtifactIds>cplex</excludeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>biosystems-releases</id>
+			<url>http://193.137.11.210/nexus/content/repositories/biosystems-releases</url>
+		</repository>
+		<repository>
+			<id>biosystems-snapshots</id>
+			<url>http://193.137.11.210/nexus/content/repositories/biosystems-snapshots</url>
+		</repository>
+
+		<!-- <repository> -->
+		<!-- <id>central</id> -->
+		<!-- <name>Central</name> -->
+		<!-- <url>http://repo.maven.apache.org/maven2</url> -->
+		<!-- </repository> -->
+	</repositories>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>biosystems-snapshots</id>
+			<url>http://193.137.11.210/nexus/content/repositories/biosystems-snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>biosystems-releases</id>
+			<url>http://193.137.11.210/nexus/content/repositories/biosystems-releases</url>
+		</repository>
+	</distributionManagement>
+</project>
