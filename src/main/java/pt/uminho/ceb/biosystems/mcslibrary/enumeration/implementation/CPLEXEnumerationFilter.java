@@ -37,6 +37,7 @@ import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.ReactionConstra
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.YieldConstraint;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.implementation.CompressedMetabolicNetwork;
 
+// TODO: Auto-generated Javadoc
 /**
  * Implementation of a minimal cut set filtering algorithm in CPLEX that allows
  * for enumeration of constrained minimal cut sets, provided that you have
@@ -46,19 +47,22 @@ import pt.uminho.ceb.biosystems.mcslibrary.metabolic.implementation.CompressedMe
  *
  */
 public class CPLEXEnumerationFilter {
+	
+	/** The ep. */
 	protected EnumerationProblem ep;
+	
+	/** The result. */
 	private DefaultEnumerationResult result;
 
 	/**
+	 * Instantiates a new CPLEX enumeration filter.
 	 *
-	 * @param ep
-	 *            - The {@link EnumerationProblem} containing all the desired
+	 * @param ep            - The {@link EnumerationProblem} containing all the desired
 	 *            fluxes and the metabolic network. Note: This method will only
 	 *            consider desired fluxes, as it's assumed the undesired fluxes
 	 *            were already established in the results you are to provide to
 	 *            this method.
-	 * @param result
-	 *            - The {@link DefaultEnumerationResult} instance that contains
+	 * @param result            - The {@link DefaultEnumerationResult} instance that contains
 	 *            the pre-calculated results.
 	 */
 	public CPLEXEnumerationFilter(EnumerationProblem ep,
@@ -68,10 +72,11 @@ public class CPLEXEnumerationFilter {
 	}
 
 	/**
+	 * Calculate filtered results.
 	 *
 	 * @return A boolean array where each index determines whether the MCS with
 	 *         the same index is or isn't a cMCS
-	 * @throws IloException
+	 * @throws IloException the ilo exception
 	 */
 	public DefaultEnumerationResult calculateFilteredResults()
 			throws IloException {
@@ -87,6 +92,12 @@ public class CPLEXEnumerationFilter {
 		return res;
 	}
 
+	/**
+	 * Solve.
+	 *
+	 * @return the boolean[]
+	 * @throws IloException the ilo exception
+	 */
 	public boolean[] solve() throws IloException {
 		AbstractMetabolicNetwork metaNet;
 		if (ep.getMetabolicNetwork().getClass() == CompressedMetabolicNetwork.class) {

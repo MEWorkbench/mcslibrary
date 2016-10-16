@@ -46,6 +46,7 @@ import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.YieldConstraint
 import pt.uminho.ceb.biosystems.mcslibrary.utilities.Utilities;
 import pt.uminho.ceb.biosystems.mew.utilities.java.TimeUtils;
 
+// TODO: Auto-generated Javadoc
 /**
  * Subclass of {@link AbstractEnumerationSolver} that uses CPLEX to calculate
  * MCS for a given {@link EnumerationProblem}.
@@ -54,10 +55,11 @@ import pt.uminho.ceb.biosystems.mew.utilities.java.TimeUtils;
  *
  */
 public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
+	
 	/**
+	 * Instantiates a new CPLEX enumeration solver.
 	 *
-	 * @param eprob
-	 *            - The {@link EnumerationProblem} you want to calculate MCSs
+	 * @param eprob            - The {@link EnumerationProblem} you want to calculate MCSs
 	 *            for. Note that any following methods won't consider desired
 	 *            fluxes or yields. See {@link CPLEXEnumerationFilter}.
 	 */
@@ -69,13 +71,30 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 		allowSolverLogging = true;
 	}
 
+	/** The Constant M. */
 	private static final int M = 9999;
+	
+	/** The sizeexpression. */
 	private IloLinearNumExpr sizeexpression;
+	
+	/** The populate. */
 	private boolean populate;
+	
+	/** The threads. */
 	private int threads;
+	
+	/** The allow solver logging. */
 	private boolean allowSolverLogging;
+	
+	/** The fos. */
 	private BufferedOutputStream fos;
 
+	/**
+	 * Sets the appropriate CPLEX parameters for minimal cut set enumeration.
+	 *
+	 * @param cplex An IloCplex instance
+	 * @throws IloException 
+	 */
 	// cplex parameters are set here
 	public void setCplexParams(IloCplex cplex) throws IloException {
 		cplex.setParam(IloCplex.IntParam.ClockType, 1);
@@ -99,7 +118,9 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 
 
 	/**
-	 * @throws IOException
+	 * Define whether the solver will enumerate minimal cut sets iteratively or use the populate feature to generate all feasible solutions for each size
+	 *
+	 * @param populate A boolean value, false for iterative enumeration or true if the populate method is to be used
 	 * @see pt.uminho.ceb.biosystems.mcslibrary.enumeration.AbstractEnumerationSolver#solve(int)
 	 */
 	
@@ -107,9 +128,18 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 		this.populate = populate;
 	}
 	
+	/**
+	 * Sets the number of available threads usable by CPLEX
+	 *
+	 * @param threads The number of threads.
+	 */
 	public void setThreads(int threads){
 		this.threads = threads;
 	}
+	
+	/* (non-Javadoc)
+	 * @see pt.uminho.ceb.biosystems.mcslibrary.enumeration.AbstractEnumerationSolver#solve(int)
+	 */
 	public DefaultEnumerationResult solve(int maxsize) throws IloException, IOException {
 
 
@@ -517,6 +547,12 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 
 	}
 
+	/**
+	 * Returns the sum of all the values in the array. Internal method to assess the size of a given MCS defined by a binary vector.
+	 *
+	 * @param array An integer array
+	 * @return Sum of all values in the array.
+	 */
 	private int arraySum(int[] array) {
 		int res = 0;
 		for (int i = 0; i < array.length; i++) {
@@ -525,6 +561,13 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 		return res;
 	}
 
+	/**
+	 * Collapses an array of size n*2 to an array of size n. Each element i of the new array is the sum of the elements i and i+n of the old array.
+	 * To be used only with the binary arrays coding the solutions
+	 *
+	 * @param values A solution array from CPLEX
+	 * @return a collapsed integer array
+	 */
 	private int[] recoverArray(double[] values) {
 		int halfway = values.length / 2;
 		int[] res = new int[halfway];
@@ -534,6 +577,13 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 		return res;
 	}
 
+	/**
+	 * Recovers a solution already converted from recoverArray and returns the indices for the reactions in the MCS
+	 *
+	 * @param values Integer array from recoverArray
+	 * @param size Solution size matching the length of values
+	 * @return an integer array with reaction indices
+	 */
 	private int[] recoverSolution(int[] values, int size) {
 		int[] fsol = new int[size];
 		int count = 0;
@@ -546,6 +596,12 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 		return fsol;
 	}
 	
+	/**
+	 * Recover solution.
+	 *
+	 * @param values the values
+	 * @return the int[]
+	 */
 	private int[] recoverSolution(int[] values){
 		ArrayList<Integer> inter = new ArrayList<Integer>();
 		for (int i = 0; i < values.length; i++) {
@@ -560,6 +616,14 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 		return res;
 	}
 	
+	/**
+	 * Provides a string representation of a given solution. Only used for debugging purposes.
+	 *
+	 * @param var Integer variables from the dual problem
+	 * @param values Solution values from CPLEX
+	 * @param solutionName String containing the solution name
+	 * @return A string representation of an MCS
+	 */
 	// debugging method
 	private static String sol2String(IloIntVar[] var, double[] values, String solutionName) {
 		String res = solutionName;
@@ -574,6 +638,14 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 		return res;
 	}
 	
+	/**
+	 * Provides a string representation of a given solution. Only used for debugging purposes.
+	 *
+	 * @param var Numeric variables from the dual problem
+	 * @param values Solution values from CPLEX
+	 * @param solutionName String containing the solution name
+	 * @return A string representation of an MCS
+	 */
 	private static String sol2String(IloNumVar[] var, double[] values, String solutionName) {
 		String res = solutionName;
 		for (int i = 0; i < values.length; i++) {
@@ -588,6 +660,11 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 	}
 
 
+	/**
+	 * Define whether the solver will keep a log in the "cplexLogs/" folder relative to the root. This folder is automatically created if not existant
+	 *
+	 * @param allowSolverLogging Boolean value
+	 */
 	public void allowSolverLogging(boolean allowSolverLogging) {
 		this.allowSolverLogging = allowSolverLogging;
 	}

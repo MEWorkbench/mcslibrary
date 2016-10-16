@@ -28,6 +28,7 @@ import pt.uminho.ceb.biosystems.mcslibrary.enumeration.AbstractEnumerationResult
 import pt.uminho.ceb.biosystems.mcslibrary.enumeration.EnumerationProblem;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.implementation.CompressedMetabolicNetwork;
 import pt.uminho.ceb.biosystems.mcslibrary.utilities.Utilities;
+// TODO: Auto-generated Javadoc
 /**
  * Subclass of {@link AbstractEnumerationResult}. Contains the results with the indexes for the compressed network. 
  * @author V�tor
@@ -35,18 +36,30 @@ import pt.uminho.ceb.biosystems.mcslibrary.utilities.Utilities;
  */
 public class CompressedEnumerationResults extends AbstractEnumerationResult{
 	
+	/**
+	 * Instantiates a new compressed enumeration results.
+	 *
+	 * @param problem the problem
+	 * @param results the results
+	 */
 	public CompressedEnumerationResults(EnumerationProblem problem,
 			ArrayList<int[]> results) {
 		super(problem, results);
 	}
 	
+	/**
+	 * Instantiates a new compressed enumeration results.
+	 *
+	 * @param problem the problem
+	 */
 	public CompressedEnumerationResults(EnumerationProblem problem) {
 		super(problem, new ArrayList<int[]>());
 	}
+	
 	/**
-	 * 
-	 * @return
-	 * An instance of {@link DefaultEnumerationResult} with decompressed results to match the original metabolic network
+	 * Decompress result.
+	 *
+	 * @return An instance of {@link DefaultEnumerationResult} with decompressed results to match the original metabolic network
 	 */
 	public DefaultEnumerationResult decompressResult() {
 		CompressedMetabolicNetwork compNet = (CompressedMetabolicNetwork) problem.getMetabolicNetwork();
@@ -62,6 +75,10 @@ public class CompressedEnumerationResults extends AbstractEnumerationResult{
 		DefaultEnumerationResult res = new DefaultEnumerationResult(problem, decompressedResults);
 		return res;
 	}
+	
+	/* (non-Javadoc)
+	 * @see pt.uminho.ceb.biosystems.mcslibrary.enumeration.AbstractEnumerationResult#toStringArrays()
+	 */
 	@Override
 	public ArrayList<String[]> toStringArrays() {
 		DefaultEnumerationResult res = decompressResult();
@@ -69,6 +86,9 @@ public class CompressedEnumerationResults extends AbstractEnumerationResult{
 	}
 	
 
+	/* (non-Javadoc)
+	 * @see pt.uminho.ceb.biosystems.mcslibrary.enumeration.AbstractEnumerationResult#countResults()
+	 */
 	@Override
 	public int countResults() {
 		int sum = 0;
@@ -84,10 +104,16 @@ public class CompressedEnumerationResults extends AbstractEnumerationResult{
 		return sum;
 	}
 	
+	/* (non-Javadoc)
+	 * @see pt.uminho.ceb.biosystems.mcslibrary.enumeration.AbstractEnumerationResult#addSolution(int[])
+	 */
 	public void addSolution(int[] mcs){
 		this.results.add(mcs);
 	}
 	
+	/* (non-Javadoc)
+	 * @see pt.uminho.ceb.biosystems.mcslibrary.enumeration.AbstractEnumerationResult#printResults()
+	 */
 	public void printResults(){
 		ArrayList<String[]> finalresults = decompressResult().toStringArrays();
 		for (int i = 0; i < finalresults.size(); i++) {
