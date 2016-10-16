@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright 2016
+ * CEB Centre of Biological Engineering
+ * University of Minho
+ *
+ * This is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this code. If not, see http://www.gnu.org/licenses/
+ *
+ * Created inside the BIOSYSTEMS Research Group
+ * (http://www.ceb.uminho.pt/biosystems)
+ *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.utilities;
 
 import java.io.IOException;
@@ -16,7 +37,6 @@ import pt.uminho.ceb.biosystems.mcslibrary.enumeration.EnumerationProblem;
 import pt.uminho.ceb.biosystems.mcslibrary.enumeration.Solution;
 import pt.uminho.ceb.biosystems.mcslibrary.enumeration.implementation.CPLEXEnumerationFilter;
 import pt.uminho.ceb.biosystems.mcslibrary.enumeration.implementation.CPLEXEnumerationSolver;
-import pt.uminho.ceb.biosystems.mcslibrary.enumeration.implementation.CPLEXIntegratedEnumerator;
 import pt.uminho.ceb.biosystems.mcslibrary.enumeration.implementation.CompressedEnumerationResults;
 import pt.uminho.ceb.biosystems.mcslibrary.enumeration.implementation.DefaultEnumerationResult;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.Reaction;
@@ -434,18 +454,11 @@ public class MCSPipeline {
 		try {
 			AbstractEnumerationResult reslt = null;
 			
-			if (aty == AlgorithmType.INTEGRATED) {
-				CPLEXIntegratedEnumerator enm = new CPLEXIntegratedEnumerator(ep);
-				reslt = enm.solve(maxParam);
-			} else if (aty == AlgorithmType.DEFAULT) {
-				CPLEXEnumerationSolver enm = new CPLEXEnumerationSolver(ep);
-				enm.setThreads(threads);
-				enm.allowSolverLogging(allowSolverLogging);
-				reslt = enm.solve(maxParam);
-			} else if (aty == AlgorithmType.SAMPLING) {
-				CPLEXIntegratedEnumerator enm = new CPLEXIntegratedEnumerator(ep);
-				reslt = enm.iterativeSolve((3600*12), (3600*12), false, 1);
-			}
+
+			CPLEXEnumerationSolver enm = new CPLEXEnumerationSolver(ep);
+			enm.setThreads(threads);
+			enm.allowSolverLogging(allowSolverLogging);
+			reslt = enm.solve(maxParam);
 			
 			
 			if (reslt.getClass() == CompressedEnumerationResults.class) {
@@ -456,17 +469,15 @@ public class MCSPipeline {
 				mcs = (DefaultEnumerationResult) reslt;
 			}
 			
-			if (aty == AlgorithmType.DEFAULT && constrained) {
-				System.out.println("Filtering");
-				System.out.println("Desired fluxes: ");
-				for (FluxBound fluxBound : desired_targets) {
-					System.out.println("\t"+fluxBound);
-				}
-				for (YieldConstraint yieldConstraint : desired_yields) {
-					System.out.println("\t"+yieldConstraint);
-				}
-				mcs = new CPLEXEnumerationFilter(ep, mcs).calculateFilteredResults();
+			System.out.println("Filtering");
+			System.out.println("Desired fluxes: ");
+			for (FluxBound fluxBound : desired_targets) {
+				System.out.println("\t"+fluxBound);
 			}
+			for (YieldConstraint yieldConstraint : desired_yields) {
+				System.out.println("\t"+yieldConstraint);
+			}
+			mcs = new CPLEXEnumerationFilter(ep, mcs).calculateFilteredResults();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -490,8 +501,7 @@ public class MCSPipeline {
 		for (int i = 0; i < uF.length; i++) {
 			Reaction r = uF[i].getReac();
 			r.setBounds(uF[i].getBounds());
-//			int idx = model.getReactionIndex(r.getName());
-//			model.setReaction(r, idx);
+
 		}
 
 		ArrayList<FluxBound> fvaConditions = (ArrayList<FluxBound>) undesired_targets
