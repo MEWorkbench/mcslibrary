@@ -13,12 +13,12 @@
 <listOfCompartments>
 	<compartment id="Extra_organism"/>
 	<compartment id="Cytosol" outside="Extra_organism"/>
-	<compartment id="Endoplasmic_Reticulum" outside="Extra_organism"/>
-	<compartment id="Golgi_Apparatus" outside="Extra_organism"/>
-	<compartment id="Mitochondria" outside="Extra_organism"/>
-	<compartment id="Nucleus" outside="Extra_organism"/>
-	<compartment id="Peroxisome" outside="Extra_organism"/>
-	<compartment id="Vacuole" outside="Extra_organism"/>
+	<compartment id="Endoplasmic_Reticulum" outside="Cytosol"/>
+	<compartment id="Golgi_Apparatus" outside="Cytosol"/>
+	<compartment id="Mitochondria" outside="Cytosol"/>
+	<compartment id="Nucleus" outside="Cytosol"/>
+	<compartment id="Peroxisome" outside="Cytosol"/>
+	<compartment id="Vacuole" outside="Cytosol"/>
 </listOfCompartments>
 <listOfSpecies>
 	<species id="M_10fthf_c" name="M_10_Formyltetrahydrofolate_C20H21N7O7" compartment="Cytosol" charge="-2" boundaryCondition="false"/>
@@ -5793,6 +5793,34 @@
 			</listOfParameters>
 		</kineticLaw>
 	</reaction>
+	<reaction id="R_AKGCITm" name="R_alpha_ketoglutarateCitrate_transporter" reversible="true">
+		<notes>
+			<html:p>GENE_ASSOCIATION: </html:p>
+			<html:p>PROTEIN_ASSOCIATION: "</html:p>
+			<html:p>SUBSYSTEM: S_Transport__Mithochondria</html:p>
+			<html:p>PROTEIN_CLASS: </html:p>
+		</notes>
+		<listOfReactants>
+			<speciesReference species="M_akg_c" stoichiometry="1.000000"/>
+			<speciesReference species="M_cit_m" stoichiometry="1.000000"/>
+		</listOfReactants>
+		<listOfProducts>
+			<speciesReference species="M_cit_c" stoichiometry="1.000000"/>
+			<speciesReference species="M_akg_m" stoichiometry="1.000000"/>
+		</listOfProducts>
+		<kineticLaw>
+			<math xmlns="http://www.w3.org/1998/Math/MathML">
+				<ci> FLUX_VALUE </ci>
+			</math>
+			<listOfParameters>
+				<parameter id="LOWER_BOUND" value="-999999.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="UPPER_BOUND" value="999999.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="OBJECTIVE_COEFFICIENT" value="0.000000"/>
+				<parameter id="FLUX_VALUE" value="0.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="REDUCED_COST" value="0.000000"/>
+			</listOfParameters>
+		</kineticLaw>
+	</reaction>
 	<reaction id="R_AKGt2n" name="R_2_oxoglutarate_nuclear_transport_via_proton_symport" reversible="true">
 		<notes>
 			<html:p>GENE_ASSOCIATION: </html:p>
@@ -8389,7 +8417,7 @@
 				<ci> FLUX_VALUE </ci>
 			</math>
 			<listOfParameters>
-				<parameter id="LOWER_BOUND" value="-999999.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="LOWER_BOUND" value="0.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="UPPER_BOUND" value="999999.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="OBJECTIVE_COEFFICIENT" value="0.000000"/>
 				<parameter id="FLUX_VALUE" value="0.006097" units="mmol_per_gDW_per_hr"/>
@@ -16783,7 +16811,7 @@
 				<ci> FLUX_VALUE </ci>
 			</math>
 			<listOfParameters>
-				<parameter id="LOWER_BOUND" value="-10.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="LOWER_BOUND" value="-1.150000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="UPPER_BOUND" value="999999.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="OBJECTIVE_COEFFICIENT" value="0.000000"/>
 				<parameter id="FLUX_VALUE" value="-10.000000" units="mmol_per_gDW_per_hr"/>
@@ -17927,7 +17955,7 @@
 				<ci> FLUX_VALUE </ci>
 			</math>
 			<listOfParameters>
-				<parameter id="LOWER_BOUND" value="-2.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="LOWER_BOUND" value="-999999.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="UPPER_BOUND" value="999999.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="OBJECTIVE_COEFFICIENT" value="0.000000"/>
 				<parameter id="FLUX_VALUE" value="-2.000000" units="mmol_per_gDW_per_hr"/>
@@ -30924,7 +30952,7 @@
 				<ci> FLUX_VALUE </ci>
 			</math>
 			<listOfParameters>
-				<parameter id="LOWER_BOUND" value="-999999.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="LOWER_BOUND" value="0.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="UPPER_BOUND" value="999999.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="OBJECTIVE_COEFFICIENT" value="0.000000"/>
 				<parameter id="FLUX_VALUE" value="-0.410972" units="mmol_per_gDW_per_hr"/>
@@ -35049,7 +35077,7 @@
 				<ci> FLUX_VALUE </ci>
 			</math>
 			<listOfParameters>
-				<parameter id="LOWER_BOUND" value="-999999.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="LOWER_BOUND" value="0.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="UPPER_BOUND" value="999999.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="OBJECTIVE_COEFFICIENT" value="0.000000"/>
 				<parameter id="FLUX_VALUE" value="0.523182" units="mmol_per_gDW_per_hr"/>
@@ -41609,11 +41637,11 @@
 		</notes>
 		<listOfReactants>
 			<speciesReference species="M_dscl_c" stoichiometry="1.000000"/>
-			<speciesReference species="M_nadp_c" stoichiometry="1.000000"/>
+			<speciesReference species="M_nad_c" stoichiometry="1.000000"/>
 		</listOfReactants>
 		<listOfProducts>
 			<speciesReference species="M_h_c" stoichiometry="1.000000"/>
-			<speciesReference species="M_nadph_c" stoichiometry="1.000000"/>
+			<speciesReference species="M_nadh_c" stoichiometry="1.000000"/>
 			<speciesReference species="M_scl_c" stoichiometry="1.000000"/>
 		</listOfProducts>
 		<kineticLaw>
@@ -45940,6 +45968,64 @@
 				<parameter id="UPPER_BOUND" value="999999.000000" units="mmol_per_gDW_per_hr"/>
 				<parameter id="OBJECTIVE_COEFFICIENT" value="1.000000"/>
 				<parameter id="FLUX_VALUE" value="0.287866" units="mmol_per_gDW_per_hr"/>
+				<parameter id="REDUCED_COST" value="0.000000"/>
+			</listOfParameters>
+		</kineticLaw>
+	</reaction>
+		<reaction id="R_AKGMALm" name="R_alpha_ketoglutarateCitrate_transporter" reversible="true">
+		<notes>
+			<html:p>GENE_ASSOCIATION: </html:p>
+			<html:p>PROTEIN_ASSOCIATION: "</html:p>
+			<html:p>SUBSYSTEM: S_Transport__Mithochondria</html:p>
+			<html:p>PROTEIN_CLASS: </html:p>
+		</notes>
+		<listOfReactants>
+			<speciesReference species="M_akg_c" stoichiometry="1.000000"/>
+			<speciesReference species="M_mal_L_m" stoichiometry="1.000000"/>
+		</listOfReactants>
+		<listOfProducts>
+			<speciesReference species="M_mal_L_c" stoichiometry="1.000000"/>
+			<speciesReference species="M_akg_m" stoichiometry="1.000000"/>
+		</listOfProducts>
+		<kineticLaw>
+			<math xmlns="http://www.w3.org/1998/Math/MathML">
+				<ci> FLUX_VALUE </ci>
+			</math>
+			<listOfParameters>
+				<parameter id="LOWER_BOUND" value="-999999.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="UPPER_BOUND" value="999999.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="OBJECTIVE_COEFFICIENT" value="0.000000"/>
+				<parameter id="FLUX_VALUE" value="0.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="REDUCED_COST" value="0.000000"/>
+			</listOfParameters>
+		</kineticLaw>
+	</reaction>	
+	<reaction id="R_ALDD2x" name="R_aldehyde_dehydrogenase__acetaldehyde__NAD_" reversible="false">
+		<notes>
+			<html:p>GENE_ASSOCIATION: YPL061W</html:p>
+			<html:p>PROTEIN_ASSOCIATION: Ald6"</html:p>
+			<html:p>SUBSYSTEM: S_Pyruvate_Metabolism</html:p>
+			<html:p>PROTEIN_CLASS: 1.2.1.4</html:p>
+		</notes>
+		<listOfReactants>
+			<speciesReference species="M_acald_c" stoichiometry="1.000000"/>
+			<speciesReference species="M_h2o_c" stoichiometry="1.000000"/>
+			<speciesReference species="M_nad_c" stoichiometry="1.000000"/>
+		</listOfReactants>
+		<listOfProducts>
+			<speciesReference species="M_ac_c" stoichiometry="1.000000"/>
+			<speciesReference species="M_h_c" stoichiometry="2.000000"/>
+			<speciesReference species="M_nadh_c" stoichiometry="1.000000"/>
+		</listOfProducts>
+		<kineticLaw>
+			<math xmlns="http://www.w3.org/1998/Math/MathML">
+				<ci> FLUX_VALUE </ci>
+			</math>
+			<listOfParameters>
+				<parameter id="LOWER_BOUND" value="0.000000" units="mmol_per_gDW_per_hr"/>
+				<parameter id="UPPER_BOUND" value="999999" units="mmol_per_gDW_per_hr"/>
+				<parameter id="OBJECTIVE_COEFFICIENT" value="0.000000"/>
+				<parameter id="FLUX_VALUE" value="0.130576" units="mmol_per_gDW_per_hr"/>
 				<parameter id="REDUCED_COST" value="0.000000"/>
 			</listOfParameters>
 		</kineticLaw>

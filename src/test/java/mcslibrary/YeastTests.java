@@ -3,6 +3,7 @@ package mcslibrary;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -37,7 +38,7 @@ public class YeastTests {
 	final static String o2 = "R_EX_o2_e_";
 
 	public static void setUpPipeline() throws FileNotFoundException, IOException, XMLStreamException, ErrorsException, ParserConfigurationException, SAXException, JSBMLValidationException, IloException{
-		String path = "/home/skapur/cleanworkspace/mcslibrary/src/test/resources/iMM904_files/iMM904.xml";
+		String path = "iMM904_RP/iMM904_corrected_201609001170165318.xml";
 		Container cont = new Container(new JSBMLReader(path, "default", false));
 		mcs = new MCSPipeline(cont, "");
 		model = mcs.getMetabolicNetwork();
@@ -71,6 +72,12 @@ public class YeastTests {
         // reactions to exclude from compression
         mcs.addSingleReaction(biomass);
         mcs.addSingleReaction(atpm);
+        mcs.addSingleReaction(glucose);
+        mcs.addSingleReaction(o2);
+        mcs.addSingleReaction(product);
+        
+        List<String> nontargets = Utilities.readLines("iMM904_RP/SupportFiles/nontargets#[aerobic#glucose].txt");
+        mcs.addNonTargets(nontargets);
         
         // parameters
         double minSYield = 0.01; // minimum Product/Substrate yield
@@ -95,7 +102,7 @@ public class YeastTests {
         mcs.addFluxBound(atpm, 1, 1, true);
         
         mcs.addFluxBound(biomass, viableBiomass, Utilities.INF, false);
-        mcs.addFluxBound(glucose, -glucoseUptake, Utilities.INF, false);
+        mcs.addFluxBound(glucose, -glucoseUptake, -glucoseUptake, false);
         mcs.addUpperYieldConstraint(glucose, product, -minSYield, false);
         mcs.addFluxBound(atpm, 1, 1, false);
 
@@ -110,7 +117,11 @@ public class YeastTests {
 	}
 	
 	public static void printSolutionDataset(DefaultEnumerationResult r, Reaction productReaction) throws IloException{
-		FluxBound[] environmentalConditions = new FluxBound[]{new FluxBound(model.getReaction(atpm), 1, 1)};
+		FluxBound[] environmentalConditions = new FluxBound[]{
+				new FluxBound(model.getReaction(atpm), 1, 1), 
+				new FluxBound(model.getReaction(glucose), -1.15, -1.15),
+		};
+		
 		ArrayList<String[]> strings = r.toStringArrays();
 		System.out.println("Solution,MaximumBiomass,MinimumProductFlux");
 		for (int i = 0; i < r.countResults(); i++) {

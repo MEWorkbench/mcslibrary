@@ -167,7 +167,6 @@ public final class Utilities {
 		Reaction[] res = new Reaction[size];
 		for (int str : strs){
 			Reaction r = metaNet.getReaction(str);
-			System.out.println(r);
 			res[i] = r;
 			i++;
 		}

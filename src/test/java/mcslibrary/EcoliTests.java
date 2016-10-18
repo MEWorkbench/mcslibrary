@@ -27,7 +27,7 @@ public class EcoliTests {
 	static CPLEXFluxBalanceAnalysis fba;
 	
 	public static void setUpPipeline() throws FileNotFoundException, IOException, XMLStreamException, ErrorsException, ParserConfigurationException, SAXException, JSBMLValidationException, IloException{
-		String path = "models/iAF1260_flux2.xml";
+		String path = "iAF1260_flux2/Ec_iAF1260_flux2.txt";
 		Container cont = new Container(new JSBMLReader(path, "default", false));
 		mcs = new MCSPipeline(cont, "s0001");
 		fba = new CPLEXFluxBalanceAnalysis(mcs.getMetabolicNetwork());
@@ -90,13 +90,12 @@ public class EcoliTests {
         String atpm = "R_ATPM"; // maintenance ATP reaction name
         
         double glcUpt = 20; // glucose (substrate) uptake
-        double oxyUpt = 20; // oxygen uptake
         double mATP = 8.39; // minimum maintenance ATP flux
         double minYld = 0.5; // minimum product/substrate yield threshold
         double minBio = 0.001; // minimum biomass threshold
         
         // bounds specific for aerobic conditions (needed to replicate MCSEnumerator)
-        mcs.overrideBounds("iAF1260_files/bounds.csv");
+        mcs.overrideBounds("iAF1260_flux2/SupportFiles/bounds.csv");
         
         // reactions that are not to be compressed
         String[] singleReactions = new String[]{substrate, product, oxygen, biomass, atpm};
@@ -109,7 +108,7 @@ public class EcoliTests {
         
         // block reactions contained in the file
         // needed to replicate MCSEnumerator validation cases
-		List<String> grm = Utilities.readLines("iAF1260_files/aerobic.grm");
+		List<String> grm = Utilities.readLines("iAF1260_flux2/SupportFiles/anaerobic.grm");
         mcs.applyGeneRegulation(grm);
         
         mcs.correctInOutflows();
@@ -120,14 +119,14 @@ public class EcoliTests {
         // define the undesired space
         mcs.addFluxBound(atpm, mATP, Utilities.INF, true);
 		mcs.addFluxBound(substrate, -glcUpt, Utilities.INF, true); 
-        mcs.addFluxBound(oxygen, -oxyUpt, Utilities.INF, true);
+        mcs.addFluxBound(oxygen, 0, Utilities.INF, true);
         mcs.addLowerYieldConstraint(substrate, product, -minYld, true); // block vectors with Substrate/Product yield below minYld
         // addLowerYieldConstraint for Y(P/S) > -minYld (glucose uptake carries negative flux so the sign is flipped)
         
         // define the desired space
         mcs.addFluxBound(biomass, minBio, Utilities.INF, false);
         mcs.addUpperYieldConstraint(substrate, product, -minYld, false);
-        mcs.addFluxBound(oxygen, -oxyUpt, Utilities.INF, false);
+        mcs.addFluxBound(oxygen, 0, Utilities.INF, false);
         mcs.addFluxBound(substrate, -glcUpt, Utilities.INF, false);
         mcs.addFluxBound(atpm, mATP, Utilities.INF, false);
         // addUpperYieldConstraint for Y(P/S) > -minYld (glucose uptake carries negative flux so the sign is flipped)
@@ -141,9 +140,9 @@ public class EcoliTests {
 		
 		mcs.resetConstraints(); // remove any previous constraints
 
-        mcs.overrideBounds("iAF1260_files/bounds.csv");
+        mcs.overrideBounds("iAF1260_flux2/SupportFiles/bounds.csv");
         mcs.correctCapacities();
-        mcs.applyGeneRegulation(Utilities.readLines("iAF1260_files/aerobicoxidativestress.grm"));
+        mcs.applyGeneRegulation(Utilities.readLines("iAF1260_flux2/SupportFiles/aerobicoxidativestress.grm"));
         mcs.correctInOutflows();
 
         mcs.addFluxBound("R_EX_glc_e_", -20, Utilities.INF, true);
@@ -167,9 +166,9 @@ public class EcoliTests {
 		
 		mcs.resetConstraints(); // remove any previous constraints
 
-        mcs.overrideBounds("iAF1260_files/bounds.csv");
+        mcs.overrideBounds("iAF1260_flux2/SupportFiles/bounds.csv");
         mcs.correctCapacities();
-        mcs.applyGeneRegulation(Utilities.readLines("iAF1260_files/aerobicoxidativestress.grm"));
+        mcs.applyGeneRegulation(Utilities.readLines("iAF1260_flux2/SupportFiles/aerobicoxidativestress.grm"));
         mcs.correctInOutflows();
 
         mcs.addFluxBound("R_EX_glc_e_", -20, Utilities.INF, true);
