@@ -21,13 +21,7 @@
 		<dependency>
 			<groupId>pt.uminho.ceb.biosystems.mew</groupId>
 			<artifactId>mew-core</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
-<!-- 			<exclusions> -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>cplex</artifactId> -->
-<!-- 					<groupId>com.ibm.ilog</groupId> -->
-<!-- 				</exclusion> -->
-<!-- 			</exclusions> -->
+			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
 
 
