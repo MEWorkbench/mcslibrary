@@ -4,7 +4,7 @@
 
 	<groupId>pt.uminho.ceb.biosystems.mcslibrary</groupId>
 	<artifactId>mcslibrary</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>${meworkbench.version}</version>
 	<packaging>jar</packaging>
 
 	<name>mcslibrary</name>
@@ -14,6 +14,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
+		<meworkbench.version>1.0.2-SNAPSHOT</meworkbench.version>
+		<cplex.jar.path>${env.CPLEX_HOME}/lib/cplex.jar</cplex.jar.path>
 	</properties>
 
 	<dependencies>
@@ -21,17 +23,17 @@
 		<dependency>
 			<groupId>pt.uminho.ceb.biosystems.mew</groupId>
 			<artifactId>mew-core</artifactId>
-			<version>0.0.3-SNAPSHOT</version>
+			<version>${meworkbench.version}</version>
 		</dependency>
 
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.ibm.ilog</groupId> -->
-<!-- 			<artifactId>cplex</artifactId> -->
-<!-- 			<scope>system</scope> -->
-<!-- 			<systemPath>${basedir}/buildlib/cplex.jar</systemPath> -->
-<!-- 			<version>0</version> -->
-<!-- 		</dependency> -->
+		<dependency>
+			<groupId>com.ibm.ilog</groupId>
+			<artifactId>cplex</artifactId>
+			<version>1.2.5</version>
+			<scope>system</scope>
+			<systemPath>${cplex.jar.path}</systemPath>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -63,7 +65,7 @@
 		</dependency>
 
 	</dependencies>
-	<build>
+<!-- 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -86,7 +88,7 @@
 				</executions>
 			</plugin>
 		</plugins>
-	</build>
+	</build> -->
 
 	<repositories>
 		<repository>
