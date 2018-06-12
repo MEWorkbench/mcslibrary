@@ -43,7 +43,7 @@ import pt.uminho.ceb.biosystems.mew.core.strainoptimization.algorithm.AbstractSt
 import pt.uminho.ceb.biosystems.mew.core.strainoptimization.optimizationresult.solution.RKSolution;
 import pt.uminho.ceb.biosystems.mew.core.strainoptimization.optimizationresult.solution.SolutionFactory;
 import pt.uminho.ceb.biosystems.mew.core.strainoptimization.optimizationresult.solutionset.RKSolutionSet;
-import pt.uminho.ceb.biosystems.mew.solvers.SolverType;
+import pt.uminho.ceb.biosystems.mew.solvers.builders.CPLEX3SolverBuilder;
 import pt.uminho.ceb.biosystems.mew.utilities.datastructures.pair.Pair;
 
 public class MinimalCutSetEnumerationAlgorithm extends AbstractStrainOptimizationAlgorithm<McslibraryGenericConfiguration> {
@@ -68,6 +68,7 @@ public class MinimalCutSetEnumerationAlgorithm extends AbstractStrainOptimizatio
 		Container cont = configuration.getContainer();
 		String spontaneous_handle = configuration.getSpontaneousHandle();
 		MCSPipeline p = new MCSPipeline(cont, spontaneous_handle);
+		p.initializesOnEnumeration(false);
 		
 		EnvironmentalConditions env = configuration.getEnvironmentalConditions();
 		EnvironmentalConditions uFlux = configuration.getUndesiredFluxes();
@@ -148,11 +149,11 @@ public class MinimalCutSetEnumerationAlgorithm extends AbstractStrainOptimizatio
 		
 		p.correctCapacities();
 		p.correctInOutflows();
-		try {
-			p.addSingleReaction("R_ATPM");
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+//		try {
+//			p.addSingleReaction("R_ATPM");
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//		}
 		int maxSolSize = configuration.getMaximumSolutionSize();
 		boolean cd = ( (dFlux == null) ? false : ( (dFlux.size() > 0) ? true : false));
 		boolean cy = ( (dYield == null) ? false : ( (dYield.size() > 0) ? true : false));
@@ -205,7 +206,7 @@ public class MinimalCutSetEnumerationAlgorithm extends AbstractStrainOptimizatio
 	private SteadyStateSimulationResult generateFVAMin(GeneticConditions genes, EnvironmentalConditions envCond, ISteadyStateModel model, String product, String methodType){
 		SimulationSteadyStateControlCenter ssscc = new SimulationSteadyStateControlCenter(envCond, genes, model, methodType);
 		ssscc.setMaximization(false);
-		ssscc.setSolver(SolverType.CPLEX3);
+		ssscc.setSolver(CPLEX3SolverBuilder.ID);
 		ssscc.setFBAObjSingleFlux(product, 1.0);
 		SteadyStateSimulationResult simresult = null;
 		try {
@@ -221,7 +222,7 @@ public class MinimalCutSetEnumerationAlgorithm extends AbstractStrainOptimizatio
 	private SteadyStateSimulationResult generateBiomass(GeneticConditions genes, EnvironmentalConditions envCond, ISteadyStateModel model, String biomass, String methodType){
 		SimulationSteadyStateControlCenter ssscc = new SimulationSteadyStateControlCenter(envCond, genes, model, methodType);
 		ssscc.setMaximization(true);
-		ssscc.setSolver(SolverType.CPLEX3);
+		ssscc.setSolver(CPLEX3SolverBuilder.ID);
 		ssscc.setFBAObjSingleFlux(biomass, 1.0);
 		SteadyStateSimulationResult simresult = null;
 		try {
