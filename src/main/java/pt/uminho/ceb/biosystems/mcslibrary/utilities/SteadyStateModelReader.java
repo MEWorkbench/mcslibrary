@@ -1,28 +1,8 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.utilities;
 
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.ReactionConstraint;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.implementation.DefaultMetabolicNetwork;
+import pt.uminho.ceb.biosystems.mew.biocomponents.container.Container;
 import pt.uminho.ceb.biosystems.mew.core.model.components.Metabolite;
 import pt.uminho.ceb.biosystems.mew.core.model.components.Reaction;
 import pt.uminho.ceb.biosystems.mew.core.model.steadystatemodel.ISteadyStateModel;
@@ -73,4 +53,25 @@ public class SteadyStateModelReader {
 		DefaultMetabolicNetwork mod = new DefaultMetabolicNetwork(createMetabolites(),createReactions(),createMatrix());
 		return mod;
 	}
+	
+	public static void updateFormulae(Container cont, DefaultMetabolicNetwork mn){
+		for (int i = 0; i < mn.getNumOfMetabolites(); i++) {
+			try {
+				mn.getMetabolite(i).setFormula(cont.getMetabolite(mn.getMetabolite(i).getName()).getFormula());
+			} catch (Exception e) {
+				System.out.println("Error");
+			}
+		}
+	}
+
+	public static void convertRxIdToName(Container cont, DefaultMetabolicNetwork mn) {
+		for (int i = 0; i < mn.getNumOfReactions(); i++) {
+			try {
+				mn.getReaction(i).setName(cont.getReaction(mn.getReaction(i).getName()).getName());
+			} catch (Exception e) {
+				System.out.println("Error");
+			}
+		}
+	}
 }
+

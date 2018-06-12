@@ -1,24 +1,3 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.metabolic.fva;
 
 import ilog.concert.IloException;
@@ -32,8 +11,10 @@ import ilog.cplex.IloCplex.Status;
 import java.util.HashMap;
 
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.AbstractMetabolicNetwork;
+import pt.uminho.ceb.biosystems.mcslibrary.metabolic.Reaction;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.FluxBound;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.YieldConstraint;
+import pt.uminho.ceb.biosystems.mcslibrary.solution.SolutionUtilities;
 import pt.uminho.ceb.biosystems.mcslibrary.utilities.Pair;
 import pt.uminho.ceb.biosystems.mcslibrary.utilities.Utilities;
 
@@ -48,11 +29,24 @@ public class CPLEXFluxVariabilityAnalysis {
 		this.fluxrestrictions = fluxrestrictions;
 		this.yieldrestrictions = yieldrestrictions;
 	}
+	
+	public CPLEXFluxVariabilityAnalysis(AbstractMetabolicNetwork metaNet, FluxBound[] fluxrestrictions, Reaction[] knockouts, YieldConstraint[] yieldrestrictions) {
+		this.metaNet = metaNet;
+		this.fluxrestrictions = new FluxBound[fluxrestrictions.length + knockouts.length];
+		for (int i = 0; i < fluxrestrictions.length; i++) {
+			this.fluxrestrictions[i] = fluxrestrictions[i];
+		}
+		for (int i = 0; i < knockouts.length; i++) {
+			this.fluxrestrictions[i + fluxrestrictions.length] = new FluxBound(knockouts[i], 0, 0);
+		}
+		this.yieldrestrictions = yieldrestrictions;
+	}
 
 	public FluxVariabilityAnalysisResult solveFVA() throws IloException{
 		HashMap<Integer, Pair<Double,Double>> res = new HashMap<Integer, Pair<Double,Double>>();
 		IloNumVar[] variables = new IloNumVar[metaNet.getNumOfReactions()];
 		IloRange[] constraints = new IloRange[metaNet.getNumOfMetabolites()];
+		IloRange[] yields = new IloRange[this.yieldrestrictions.length];
 		IloCplex cplex = new IloCplex();
 		cplex.setParam(IloCplex.BooleanParam.NumericalEmphasis, true);
 
@@ -72,13 +66,13 @@ public class CPLEXFluxVariabilityAnalysis {
 			}
 			constraints[i] = cplex.eq(linExp, 0, metaNet.getMetabolite(i).getName());
 		}
-		System.out.println("Environmental conditions for FVA:");
-		System.out.println("\t Assuming "+assumed+" reactions as being disabled.");
+//		System.out.println("Environmental conditions for FVA:");
+//		System.out.println("\t Assuming "+assumed+" reactions as being disabled.");
 		if (this.fluxrestrictions != null) {
 			for (int i = 0; i < this.fluxrestrictions.length; i++) {
 
 				FluxBound rest = this.fluxrestrictions[i];
-				System.out.println(rest);
+//				System.out.println(rest);
 				int varIdx = metaNet.containsReaction(rest.getReac().getName());
 				if (varIdx > -1) {
 					double lb = rest.getBounds().getLower();
@@ -103,9 +97,20 @@ public class CPLEXFluxVariabilityAnalysis {
 				int uIdx = metaNet.containsReaction(rest.getUptakeReaction().getName());
 				int pIdx = metaNet.containsReaction(rest.getProductReaction().getName());
 				if (uIdx > -1 && pIdx > -1) {
+					double deviation = rest.getDeviation();
 					double ratio = rest.getRatio();
-					System.out.println("\t"+rest.getProductReaction().getName()+" production higher than "+ratio*variables[uIdx].getLB());
+//					System.out.println("\t"+rest.getProductReaction().getName()+" production higher than "+ratio*variables[uIdx].getLB());
 					variables[pIdx].setLB(ratio*variables[uIdx].getLB());
+					IloLinearNumExpr exp = cplex.linearNumExpr();
+					if (rest.isLower()) {
+						exp.addTerm(1, variables[pIdx]);
+						exp.addTerm(-ratio, variables[uIdx]);
+						constraints[i] = cplex.le(exp, deviation);
+					} else {
+						exp.addTerm(-1, variables[pIdx]);
+						exp.addTerm(ratio, variables[uIdx]);
+						constraints[i] = cplex.le(exp, -deviation);
+					}
 				} else {
 					System.out.println("Did not apply yield constraint");
 				}
@@ -116,6 +121,7 @@ public class CPLEXFluxVariabilityAnalysis {
 
 		cplex.add(variables);
 		cplex.add(constraints);
+		cplex.add(yields);
 
 		for (int i = 0; i < variables.length; i++) {
 			IloLinearNumExpr linExp = cplex.linearNumExpr();
@@ -127,6 +133,7 @@ public class CPLEXFluxVariabilityAnalysis {
 				try {
 					cplex.solve();
 					Status status = cplex.getStatus();
+//					System.out.println(status);
 					if (status != IloCplex.Status.Optimal) {
 						mmaxpair[j] = (j == 0) ? -Utilities.INF : Utilities.INF;
 					} else {
@@ -143,4 +150,5 @@ public class CPLEXFluxVariabilityAnalysis {
 		return new FluxVariabilityAnalysisResult(metaNet, res);
 
 	}
+	
 }

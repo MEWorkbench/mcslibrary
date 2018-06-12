@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+
+import cern.colt.Arrays;
+
 import java.util.Set;
 
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.Metabolite;
@@ -111,6 +114,8 @@ public class NullspaceNetworkCompressor {
 	}
 	public CompressedMetabolicNetwork reduceModel(List<Reaction> toRemove, List<Reaction> toKeepSingle) throws IOException{
 		// get the subnetwork M by N excluding columns in toRemove
+		System.out.println(toRemove);
+		System.out.println(toKeepSingle);
 		System.out.println("Started:");
 		long starttime = System.currentTimeMillis();
 		System.out.println("Network loaded");
@@ -145,10 +150,13 @@ public class NullspaceNetworkCompressor {
 		DefaultMetabolicNetwork NSupNBlockSubNet = blocked.size() > 0 ? getSubnetworkExc(nonSuppressedReactSubMatrix, blocked) : nonSuppressedReactSubMatrix;
 		System.out.println(System.currentTimeMillis()-starttime);
 		kernel = blocked.size() > 0 ? MatrixTools.computeKernel(NSupNBlockSubNet.getStoichMatrix()) : kernel;
-
+		MatrixTools.writeCSV(NSupNBlockSubNet.getStoichMatrix(), "/home/skapur/MEOCloud/Projectos/DeYeast/Models/iMM904/iMM904_peroxisome.xml.mat.csv");
 		System.out.println("Stage 5: generate CR matrix");
+		MatrixTools.writeCSV(kernel, "/home/skapur/MEOCloud/Projectos/DeYeast/Models/iMM904/iMM904_peroxisome.xml.kernel.csv");
 		double crtol = kernel.length*Utilities.EPSILON;
 		double[][] cr = generateSubsetMatrix(kernel, crtol);
+		MatrixTools.writeCSV(cr, "/home/skapur/MEOCloud/Projectos/DeYeast/Models/iMM904/iMM904_peroxisome.xml.crmat.csv");
+
 		System.out.println(System.currentTimeMillis()-starttime);
 		System.out.println("Stage 6: generate subsets");
 		LinkedHashMap<ArrayList<Reaction>,double[]> subsetmap = new LinkedHashMap<ArrayList<Reaction>,double[]>(kernel.length,(float) 0.75,false);
@@ -182,12 +190,13 @@ public class NullspaceNetworkCompressor {
 					subsetmap.put(ss,new double[]{1});
 				} else {
 					double[] lengths = new double[reactions.size()];
-					for (int j = 0; j < lengths.length; j++) {
+//					for (int j = 0; j < lengths.length; j++) {
 						for (int k = 0; k < reactions.size(); k++) {
 							Reaction reac = reactions.get(k);
 							int idx = NSupNBlockSubNet.getReactionIndex(reac.getName());
 							lengths[k] = MatrixTools.getVectorNorm(kernel[idx]);
 						}
+
 						double[] difflen = new double[reactions.size()];
 						double lenmean = MatrixTools.getVectorMean(lengths);
 						for (int g = 0; g < lengths.length; g++) {
@@ -195,6 +204,7 @@ public class NullspaceNetworkCompressor {
 						}
 						int ind = MatrixTools.getMinimumIdx(difflen);
 						double min = lengths[ind];
+
 						for (int f = 0; f < lengths.length; f++) {
 							lengths[f] = lengths[f]/min;
 						}
@@ -205,7 +215,7 @@ public class NullspaceNetworkCompressor {
 						subsetmap.put(reactions, finalvec);
 
 					}
-				}
+//				}
 			}
 		}
 		System.out.println(reactionsInSubset.size());
@@ -224,7 +234,7 @@ public class NullspaceNetworkCompressor {
 				irrViolSubsets.add(reacts);
 			}
 		}
-
+		System.out.println("Irreversibility violating subsets"+irrViolSubsets.size());
 		ArrayList<ArrayList<Reaction>> finalIrrViolSubsets = new ArrayList<ArrayList<Reaction>>();
 		if (irrViolSubsets.size()!=0) {
 		for (ArrayList<Reaction> subset : irrViolSubsets) {
@@ -248,6 +258,8 @@ public class NullspaceNetworkCompressor {
 			}
 		}
 		}
+		System.out.println("Final irreversibility violating subsets"+finalIrrViolSubsets.size());
+
 		// actual reduction
 		
 		double[][] sub = new double[subsetmap.size()][metaNet.getNumOfReactions()];
@@ -396,4 +408,5 @@ public class NullspaceNetworkCompressor {
 		return finalnetwork;
 
 	}
+	
 }

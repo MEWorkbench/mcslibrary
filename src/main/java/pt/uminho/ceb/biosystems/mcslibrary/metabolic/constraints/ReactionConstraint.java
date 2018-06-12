@@ -1,24 +1,3 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints;
 
 import java.io.Serializable;
@@ -51,6 +30,18 @@ public class ReactionConstraint implements Serializable{
 	public ReactionConstraint(double lowerbound, double upperbound) {
 		this.lower = lowerbound;
 		this.upper = upperbound;
+	}
+	
+	public ReactionConstraint getSplitForward(){
+		double lb = (lower > 0) ? lower : 0;
+		double ub = (upper > 0) ? upper : 0;
+		return new ReactionConstraint(lb, ub);
+	}
+	
+	public ReactionConstraint getSplitReverse(){
+		double lb = (lower < 0) ? lower : 0;
+		double ub = (upper < 0) ? upper : 0;
+		return new ReactionConstraint(Math.abs(ub), Math.abs(lb));
 	}
 
 }

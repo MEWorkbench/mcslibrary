@@ -1,24 +1,3 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.metabolic.compression.alg;
 
 import java.io.BufferedReader;
@@ -39,6 +18,7 @@ import org.ejml.ops.SingularOps;
 
 import pt.uminho.ceb.biosystems.mcslibrary.utilities.Pair;
 import pt.uminho.ceb.biosystems.mcslibrary.utilities.Utilities;
+import pt.uminho.ceb.biosystems.mew.utilities.java.StringUtils;
 
 public class MatrixTools {
 	public static double EPSILON = Math.pow(2, -52);
@@ -78,6 +58,7 @@ public class MatrixTools {
 		}
 		return res;
 	}
+	
 	public static ArrayList<Integer> findNonZeroIdx(double[][] matrix, int col){
 		ArrayList<Integer> idxs = new ArrayList<Integer>();
 		for (int i = 0; i < matrix.length; i++) {
@@ -86,6 +67,20 @@ public class MatrixTools {
 			}
 		}
 		return idxs;
+	}
+	
+	public static int[] findNonZeroIdxArray(double[][] matrix, int col){
+		ArrayList<Integer> idxs = new ArrayList<Integer>();
+		for (int i = 0; i < matrix.length; i++) {
+			if (Math.abs(matrix[i][col]) > Utilities.EPSILON) {
+				idxs.add(i);
+			}
+		}
+		
+		int[] res = new int[idxs.size()];
+		for (int i = 0; i < res.length; i++)
+			res[i] = idxs.get(i);
+		return res;
 	}
 	
 	public static boolean hasAnyNonZero(double[][] rd, int col){
@@ -183,6 +178,25 @@ public class MatrixTools {
 		b.write(header);
 		for (int i = 0; i < matrix.length; i++) {
 			String line = "\n";
+			for (int j = 0; j < matrix[0].length; j++) {
+				if (j == 0) {
+					line = line + matrix[i][j];
+				} else {
+					line = line + "," + matrix[i][j];
+				}
+			}
+			b.write(line);
+		}
+		b.flush();
+		b.close();
+	}
+	
+	public static void writeCSV(double[][] matrix, String filename, List<String> header, List<String> rows) throws IOException {
+		BufferedWriter b = new BufferedWriter(new FileWriter(filename+".csv"));
+		b.write(",");
+		b.write(StringUtils.concat(",", header));
+		for (int i = 0; i < matrix.length; i++) {
+			String line = "\n"+rows.get(i)+",";
 			for (int j = 0; j < matrix[0].length; j++) {
 				if (j == 0) {
 					line = line + matrix[i][j];

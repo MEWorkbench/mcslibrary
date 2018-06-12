@@ -1,31 +1,14 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.metabolic.implementation;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.AbstractMetabolicNetwork;
@@ -118,6 +101,10 @@ public class DefaultMetabolicNetwork extends AbstractMetabolicNetwork {
 
 	public void setReaction(Reaction reac, int index) {
 		this.reactions[index] = reac;
+	}
+	
+	public Reaction[] getReactions(){
+		return this.reactions;
 	}
 
 	public void printSize() {
@@ -220,6 +207,45 @@ public class DefaultMetabolicNetwork extends AbstractMetabolicNetwork {
 
 		}
 	}
+	
+	public Pair<Double,Reaction>[] getProductionObjectiveFunctionFromMetabolite(String metaName){
+		int id = getMetaboliteIndex(metaName);
+		List<Pair<Double,Reaction>> lpdr = new ArrayList<Pair<Double,Reaction>>();
+		for (int i = 0; i < reactions.length; i++) {
+			if (getStoichCoef(id, i) > Utilities.PRECISION) {
+				lpdr.add(new Pair<Double, Reaction>(getStoichCoef(id, i), getReaction(i)));
+			} else if (getStoichCoef(id, i) < -Utilities.PRECISION && isReversible(i)){
+				lpdr.add(new Pair<Double, Reaction>(-getStoichCoef(id, i), getReaction(i)));
+			}
+		}
+		return lpdr.toArray(new Pair[lpdr.size()]);
+	}
+	
+	public List<Reaction> getReactionsInvolvingMetabolite(String metaName){
+		List<Reaction> r = new ArrayList<Reaction>();
+		int id = getMetaboliteIndex(metaName);
+		for (int i = 0; i < reactions.length; i++) {
+			if (Math.abs(getStoichCoef(id, i)) > Utilities.PRECISION) {
+				r.add(getReaction(i));
+			}
+		}
+		return r;
+	}
+	
+	public Pair<Double,Reaction>[] getConsumptionObjectiveFunctionFromMetabolite(String metaName){
+		int id = getMetaboliteIndex(metaName);
+		List<Pair<Double,Reaction>> lpdr = new ArrayList<Pair<Double,Reaction>>();
+		for (int i = 0; i < reactions.length; i++) {
+			if (getStoichCoef(id, i) < -Utilities.PRECISION) {
+				lpdr.add(new Pair<Double, Reaction>(getStoichCoef(id, i), getReaction(i)));
+			} else if (getStoichCoef(id, i) > Utilities.PRECISION && isReversible(i)){
+				lpdr.add(new Pair<Double, Reaction>(-getStoichCoef(id, i), getReaction(i)));
+			}
+		}
+		return lpdr.toArray(new Pair[lpdr.size()]);
+	}
+	
+	
 	public static DefaultMetabolicNetwork loadNetwork(String filename) throws IOException{
 		double[][] stmat = MatrixTools.readCSV(filename,false);
 		List<String> metabfile = Utilities.readLines(filename+".metabs");
@@ -278,9 +304,103 @@ public class DefaultMetabolicNetwork extends AbstractMetabolicNetwork {
 		}
 		
 		for (int i = 0; i < getNumOfMetabolites(); i++) {
-			str += "Metabolite "+i+": "+getMetabolite(i).getName()+"\n";
+			str += "Metabolite "+i+": "+getMetabolite(i).toString()+"\n";
 		}
 		return str;
+	}
+	
+	public List<Reaction> getReactionsWithCarbonShifts(int minDiff){
+		List<Reaction> res = new ArrayList<>();
+		for (int i = 0; i < reactions.length; i++) {
+			Reaction R = reactions[i];
+			List<Metabolite> Mf = getMetabolitesInvolvedInReaction(i,true);
+			List<Metabolite> Mr = getMetabolitesInvolvedInReaction(i,false);
+
+			List<Metabolite> MfN = new ArrayList<Metabolite>();
+			
+			for (Metabolite metabolite : Mf){
+				if(metabolite.getCarbonAtoms() == 0){
+					MfN.add(metabolite);
+				}
+			}
+			
+			List<Metabolite> MrN = new ArrayList<Metabolite>();
+			for (Metabolite metabolite : Mr){
+				if(metabolite.getCarbonAtoms() == 0){
+					MrN.add(metabolite);
+				}
+			}
+			
+			Mf.removeAll(MfN);
+			Mr.removeAll(MrN);
+			
+			double[][] diff = new double[Mf.size()][Mr.size()];
+			for (int j = 0; j < diff.length; j++) {
+				for (int k = 0; k < diff[0].length; k++) {
+					diff[j][k] = Math.abs(Mf.get(j).getCarbonAtoms() - Mr.get(k).getCarbonAtoms());
+				}
+			}
+			boolean[] keptfwd = new boolean[Mf.size()];
+			Arrays.fill(keptfwd, true);
+			boolean[] keptrev = new boolean[Mr.size()];
+			Arrays.fill(keptrev, true);
+//			System.out.println(R);
+			for (int j = 0; j < diff.length; j++) {
+//				System.out.println(Arrays.toString(diff[j]));
+				for (int k = 0; k < diff[0].length; k++) {
+					
+					boolean thres = diff[j][k] >= minDiff;
+					keptfwd[j] &= thres;
+					keptrev[k] &= thres;
+				}
+			}
+			boolean kept = false;
+			for (int j = 0; j < keptfwd.length; j++) {
+				kept |= keptfwd[j];
+			}
+			for (int j = 0; j < keptrev.length; j++) {
+				kept |= keptrev[j];
+			}
+//			System.out.println(Arrays.toString(keptfwd));
+//			System.out.println(Arrays.toString(keptrev));
+//			System.out.println(kept);
+			if (kept) {
+				res.add(R);
+			}
+		}
+		return res;
+	}
+	
+	public List<Metabolite> getMetabolitesInvolvedInReaction(int reactionIndex, boolean fwd){
+		List<Metabolite> meta = new ArrayList<Metabolite>();
+		for (int i = 0; i < getNumOfMetabolites(); i++) {
+			if ((getStoichCoef(i, reactionIndex) > Utilities.PRECISION) && fwd) {
+				meta.add(getMetabolite(i));
+			} else if ((getStoichCoef(i, reactionIndex) < -Utilities.PRECISION) && !fwd){
+				meta.add(getMetabolite(i));
+			}
+		}
+		return meta;
+	}
+	
+	public List<Metabolite> getMetabolitesInvolvedInReaction(int reactionIndex){
+		Set<Metabolite> m = new HashSet<>();
+		m.addAll(getMetabolitesInvolvedInReaction(reactionIndex, true));
+		m.addAll(getMetabolitesInvolvedInReaction(reactionIndex, false));
+		return new ArrayList<Metabolite>(m);
+	}
+
+	@Override
+	public ReactionConstraint getBound(int index) {
+		return this.reactions[index].getBounds();
+	}
+	
+	public List<String> getReactionNameList(){
+		List<String> names = new ArrayList<>();
+		for (int i = 0; i < reactions.length; i++) {
+			names.add(reactions[i].getName());
+		}
+		return names;
 	}
 
 }

@@ -1,24 +1,3 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.utilities;
 
 import java.io.BufferedReader;
@@ -27,14 +6,18 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import pt.uminho.ceb.biosystems.mcslibrary.metabolic.AbstractMetabolicNetwork;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.Reaction;
+import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.FluxBound;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.implementation.DefaultMetabolicNetwork;
 import pt.uminho.ceb.biosystems.mcslibrary.solution.SolutionUtilities;
 import pt.uminho.ceb.biosystems.mew.utilities.java.StringUtils;
@@ -46,12 +29,21 @@ import pt.uminho.ceb.biosystems.mew.utilities.java.StringUtils;
 public final class Utilities {
 	public static final double EPSILON = Math.pow(2, -52);
 	public static final double PRECISION = 1e-10;
+	public static final double RELEVANCE_THRES = 1e-7;
 	public static final double INF = Double.MAX_VALUE;
 
+	
+	
 	public static ArrayList<int[]> intArrayDecompressor(ArrayList<int[]> options) {
 		ArrayList<int[]> container = new ArrayList<int[]>();
 		_intArrayDecompressor(new int[]{}, options, container);
 		return container;
+	}
+	
+	public static List<double[]> doubleArrayDecompressor(ArrayList<double[]> options) {
+		ArrayList<double[]> container = new ArrayList<double[]>();
+		_doubleArrayDecompressor(new double[]{}, options, container);
+		return (List<double[]>) container;
 	}
 
 
@@ -68,7 +60,7 @@ public final class Utilities {
 	public static void writeLines(String filename, String delimiter, List<List<String>> data) throws IOException{
 		BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
 		for (List<String> list : data) {
-			bw.write(StringUtils.concat(delimiter, list));
+			bw.write(StringUtils.concat(delimiter, list)+"\n");
 		}
 		bw.flush();
 		bw.close();
@@ -91,6 +83,45 @@ public final class Utilities {
 		bw.flush();
 		bw.close();
 	}
+	
+	public static void writeLines(String filename, String delimiter, Collection<String> data) throws IOException{
+		BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
+		for (String list : data) {
+			bw.write(list+"\n");
+		}
+		bw.flush();
+		bw.close();
+	}
+	
+	public static Object[] concat(Object[] e1, Object[]e2){
+		Object[] res = new Object[e1.length + e2.length];
+		for (int i = 0; i < e1.length; i++) {
+			res[i] = e1[i];
+		}
+		for (int i = 0; i < e2.length; i++) {
+			res[i+e1.length] = e2[i];
+		}
+		return res;
+	}
+	
+	
+	public static <T extends Collection<S>, S extends Collection<String>> void writeDataset(T dataset, String filename, String delimiter) throws IOException{
+		Collection<String> toWrite = new ArrayList<String>();
+		for (Collection<String> collection : dataset) {
+			String str = StringUtils.concat(delimiter, collection).replace("[", "").replace("]", "");
+			toWrite.add(str);
+		}
+		writeLines(filename, delimiter, toWrite);
+	}
+	
+	public static void write(String string, String filename) throws IOException{
+		BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
+		bw.write(string);
+		bw.flush();
+		bw.close();
+	}
+
+
 
 
 
@@ -110,6 +141,26 @@ public final class Utilities {
 				}
 				newarray[array.length] = next[i];
 				_intArrayDecompressor(newarray, newremaining, container);
+			}
+		}
+	}
+	
+	private static void _doubleArrayDecompressor(double[] array, ArrayList<double[]> remaining, ArrayList<double[]> container){
+		if (remaining.size() == 0) {
+			container.add(array);
+		} else {
+
+			double[] next = remaining.get(remaining.size()-1);
+			@SuppressWarnings("unchecked")
+			ArrayList<double[]> newremaining = (ArrayList<double[]>) remaining.clone();
+			newremaining.remove(remaining.size()-1);
+			for (int i = 0; i < next.length; i++) {
+				double[] newarray = new double[array.length+1];
+				for (int j = 0; j < array.length; j++) {
+					newarray[j] = array[j];
+				}
+				newarray[array.length] = next[i];
+				_doubleArrayDecompressor(newarray, newremaining, container);
 			}
 		}
 	}
@@ -172,26 +223,26 @@ public final class Utilities {
 		}
 		return res;
 	}
-	public static Reaction[] toReacArrayFromString(DefaultMetabolicNetwork metaNet, Set<String> strs){
+	public static Reaction[] toReacArrayFromString(AbstractMetabolicNetwork metaNet, Set<String> strs){
 		int size = strs.size();
 		int i = 0;
 		Reaction[] res = new Reaction[size];
 		for (String str : strs){
-			Reaction r = metaNet.getReaction(metaNet.getReactionIndex(str));
+			Reaction r = metaNet.getReaction(str);
 			res[i] = r;
 			i++;
 		}
 		return res;
 	}
 	
-	public static Reaction[] toReacArrayFromString(DefaultMetabolicNetwork metaNet, List<String> strs){
+	public static Reaction[] toReacArrayFromString(AbstractMetabolicNetwork metaNet, List<String> strs){
 		int size = strs.size();
 		int i = 0;
 		Reaction[] res = new Reaction[size];
 
 		for (int j = 0; j < size; j++) {
 			String str = strs.get(j);
-			Reaction r = metaNet.getReaction(metaNet.getReactionIndex(str));
+			Reaction r = metaNet.getReaction(str);
 			res[i] = r;
 			i++;
 		}
@@ -210,6 +261,16 @@ public final class Utilities {
 	}
 
 	public static List<String> getAllStringTokens(String s, String delimiter) {
+		StringTokenizer t = new StringTokenizer(s, delimiter);
+		List<String> res = new ArrayList<String>();
+		while (t.hasMoreTokens()) {
+			res.add(t.nextToken().trim());
+		}
+		return res;
+
+	}
+	
+	public static List<String> getAllUntrimmedStringTokens(String s, String delimiter) {
 		StringTokenizer t = new StringTokenizer(s, delimiter);
 		List<String> res = new ArrayList<String>();
 		while (t.hasMoreTokens()) {
@@ -233,5 +294,114 @@ public final class Utilities {
 			}
 		}
 		return SolutionUtilities.sortByValues(filtered);
+	}
+	
+	public static <T> T[] removeItemFromArray(T[] array, int index){
+		T[] res = (T[]) new Object[array.length-1];
+		for (int i = 0; i < index; i++) {
+			res[i] = array[i];
+		}
+		for (int i = index; i < array.length; i++) {
+			res[i] = array[i+1];
+		}
+		
+		return res;
+	}
+	
+	public static double[] removeItemFromArray(double[] array, int index){
+		double[] res = new double[array.length-1];
+		for (int i = 0; i < index; i++) {
+			res[i] = array[i];
+		}
+		for (int i = index; i < array.length; i++) {
+			res[i] = array[i+1];
+		}
+		
+		return res;
+	}
+	
+	public static <T extends Object> T[] appendItemToArray(T[] array, T item){
+		@SuppressWarnings("unchecked")
+		T[] res = (T[]) new Object[array.length+1];
+		for (int i = 0; i < array.length; i++) {
+			res[i] = array[i];
+		}
+		res[array.length] = item;
+		return res;
+	}
+	
+	public static double[] appendItemToArray(double[] array, double item){
+		double[] res = new double[array.length+1];
+		for (int i = 0; i < array.length; i++) {
+			res[i] = array[i];
+		}
+		res[array.length] = item;
+		return res;
+	}
+	
+	public static Map<String,String> parseMap(String filename) throws IOException{
+		Map<String,String> parameters = new HashMap<>();
+		List<List<String>> tokens = SolutionUtilities.tokenizeFile(filename, "=");
+		for (int i = 0; i < tokens.size(); i++) {
+			parameters.put(tokens.get(i).get(0), tokens.get(i).get(1));
+		}
+		return parameters;
+		
+		
+	}
+
+	public static Pair<String,FluxBound[]> readBounds(String boundsPath, DefaultMetabolicNetwork dmn) throws IOException {
+		List<String> lines = Utilities.readLines(boundsPath);
+		FluxBound[] bounds = new FluxBound[lines.size()-1];
+		for (int i = 1; i < lines.size(); i++) {
+			String line = lines.get(i);
+			List<String> tokens = Utilities.getAllStringTokens(line, ",");
+			bounds[i-1] = new FluxBound(dmn.getReaction(tokens.get(0)), Double.parseDouble(tokens.get(1)), Double.parseDouble(tokens.get(2)));
+		}
+		return new Pair<String, FluxBound[]>(lines.get(0), bounds);
+	}
+	
+	public static Map<String, String> readPropertyMap(String mapPath) throws IOException{
+		HashMap<String, String> map = new HashMap<>();
+		for (String line : readLines(mapPath)) {
+			List<String> tokens = Utilities.getAllStringTokens(line, "=");
+//			System.out.println(tokens);
+			map.put(tokens.get(0), tokens.get(1));
+		}
+		return map;
+		
+	}
+	
+	public static Map<String, String> readMap(String mapPath, String delimiter) throws IOException{
+		HashMap<String, String> map = new HashMap<>();
+		for (String line : readLines(mapPath)) {
+			List<String> tokens = Utilities.getAllStringTokens(line, delimiter);
+//			System.out.println(tokens);
+			if (tokens.size() == 1) {
+				map.put(tokens.get(0), tokens.get(0));
+			} else {
+				map.put(tokens.get(0), tokens.get(1));
+			}
+		}
+		return map;
+		
+	}
+	
+	public static List<Set<String>> toHashSets(List<List<String>> solutions){
+		List<Set<String>> ls = new ArrayList<Set<String>>();
+		for (int i = 0; i < solutions.size(); i++) {
+			ls.add(new HashSet<>(solutions.get(i)));
+		}
+		return ls;
+		
+	}
+	
+	public static <K,V extends Object> void writeMap(Map<K,V> map, String path, String delimiter) throws IOException{
+		List<String> lines = new ArrayList<>();
+		for (K string : map.keySet()) {
+			lines.add(string+delimiter+map.get(string));
+		}
+		Utilities.writeLines(path, delimiter, lines);
+		
 	}
 }

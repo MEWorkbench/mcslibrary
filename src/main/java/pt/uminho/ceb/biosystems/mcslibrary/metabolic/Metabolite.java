@@ -1,27 +1,13 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.metabolic;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import pt.uminho.ceb.biosystems.mcslibrary.utilities.RegexUtils;
 
 /**
  * Class that represents a metabolite for use in metabolic networks
@@ -36,6 +22,7 @@ public class Metabolite implements Serializable{
 	private static final long serialVersionUID = 3472441352248104475L;
 	private String name;
 	private boolean isExternal;
+	private String formula;
 /**
  * 
  * @param name - The metabolite's name.
@@ -54,4 +41,26 @@ public class Metabolite implements Serializable{
 		return isExternal;
 	}
 	
+	public String getFormula(){
+		return this.formula;
+	}
+	
+	public void setFormula(String formula){
+		this.formula = formula;
+	}
+	
+	public int getCarbonAtoms(){
+		List<List<String>> m = RegexUtils.findAll("C([0-9]+)", formula);
+		if (m.size() == 0) {
+			return 0;
+		} else {
+			List<String> c = m.get(0);
+			String s = c.get(0).replace("C", "");
+			return Integer.parseInt(s);
+		}
+	}
+	
+	public String toString(){
+		return this.name + " = " + this.formula;
+	}
 }

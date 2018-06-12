@@ -1,29 +1,13 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.Reaction;
+import pt.uminho.ceb.biosystems.mcslibrary.metabolic.implementation.DefaultMetabolicNetwork;
+import pt.uminho.ceb.biosystems.mcslibrary.utilities.Pair;
+import pt.uminho.ceb.biosystems.mcslibrary.utilities.Utilities;
 
 /**
  * This class represents a generic flux bound, desired or undesired.
@@ -40,6 +24,7 @@ public class FluxBound implements Serializable{
 	private ReactionConstraint bounds;
 	private boolean overrideLB;
 	private boolean overrideUB;
+	private String name;
 /**
  *
  * @param reac - Instance of {@link Reaction} to which the constraint will be applied.
@@ -51,6 +36,14 @@ public class FluxBound implements Serializable{
 		this.bounds = new ReactionConstraint(lowerbound, upperbound);
 		this.overrideLB = false;
 		this.overrideUB = false;
+	}
+	
+	public FluxBound(Reaction reac, double lowerbound, double upperbound, String name) {
+		this.reac = reac;
+		this.bounds = new ReactionConstraint(lowerbound, upperbound);
+		this.overrideLB = false;
+		this.overrideUB = false;
+		this.setName(name);
 	}
 	
 	public void setOverride(boolean lower, boolean upper){
@@ -78,6 +71,29 @@ public class FluxBound implements Serializable{
 	public String toString() {
 		String str = bounds.getLower()+" <= "+reac.getName()+" <= "+bounds.getUpper();
 		return str;
+	}
+	
+	public static Pair<String,FluxBound[]> fromFile(String file, DefaultMetabolicNetwork mn) throws IOException{
+		List<String> lines = Utilities.readLines(file);
+		String name = lines.get(0);
+		FluxBound[] bounds = new FluxBound[lines.size() - 1];
+		for (int i = 0; i < bounds.length; i++) {
+			bounds[i] = fromLine(lines.get(i+1), mn);
+		}
+		return new Pair<String, FluxBound[]>(name, bounds);
+	}
+	
+	public static FluxBound fromLine(String line, DefaultMetabolicNetwork mn){
+		List<String> tokens = Utilities.getAllStringTokens(line, ",");
+		return new FluxBound(mn.getReaction(tokens.get(0)), Double.parseDouble(tokens.get(1)), Double.parseDouble(tokens.get(2)));
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

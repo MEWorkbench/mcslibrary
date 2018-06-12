@@ -1,24 +1,3 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.metabolic;
 
 import java.io.BufferedWriter;
@@ -27,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.FluxBound;
+import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.ReactionConstraint;
 
 public abstract class AbstractMetabolicNetwork implements Serializable{
 	/**
@@ -82,6 +62,13 @@ public abstract class AbstractMetabolicNetwork implements Serializable{
 	public double[][] getStoichMatrix(){
 		return this.matrix;
 	}
+	
+	public Metabolite[] getMetabolites(){
+		return metabolites;
+	}
+	
+	public abstract ReactionConstraint getBound(int index);
+	
 	public abstract boolean isReversible(int reactionIndex);
 
 	public abstract int containsReaction(String reacName);
@@ -90,12 +77,22 @@ public abstract class AbstractMetabolicNetwork implements Serializable{
 
 	public abstract int getReactionIndex(String reac);
 
+	public abstract Reaction getReaction(String reac);
+	
 	public  double getStoichCoef(Metabolite meta, Reaction react){
 		return this.matrix[getMetaboliteIndex(meta.getName())][getReactionIndex(react.getName())];
 	}
 
 	public double getStoichCoef(int metaboliteIndex, int reactionIndex){
 		return this.matrix[metaboliteIndex][reactionIndex];
+	}
+	
+	public double getStoichCoef(String metaboliteId, String reactionId){
+		return this.matrix[getMetaboliteIndex(metaboliteId)][getReactionIndex(reactionId)];
+	}
+	
+	public void setStoichCoef(String metaboliteId, String reactionId, double coef){
+		this.matrix[getMetaboliteIndex(metaboliteId)][getReactionIndex(reactionId)] = coef;
 	}
 	public void saveMetabolites(String filename) throws IOException{
 		BufferedWriter metabfile = new BufferedWriter(new FileWriter(filename+".metabs"));

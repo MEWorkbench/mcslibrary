@@ -1,32 +1,13 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.metabolic.implementation;
 
 import java.io.IOException;
 
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.AbstractMetabolicNetwork;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.Metabolite;
+import pt.uminho.ceb.biosystems.mcslibrary.metabolic.Reaction;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.ReactionGroup;
 import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.FluxBound;
+import pt.uminho.ceb.biosystems.mcslibrary.metabolic.constraints.ReactionConstraint;
 /**
  * Subclass of {@link AbstractMetabolicNetwork}. Holds a metabolic network where reactions are clusters of other reactions belonging to another, uncompressed metabolic network.
  * @see AbstractMetabolicNetwork
@@ -79,6 +60,14 @@ public class CompressedMetabolicNetwork extends AbstractMetabolicNetwork {
 	@Override
 	public int getNumOfReactions(){
 		return reactions.length;
+	}
+	
+	public Reaction getReaction(String reacName){
+		return this.reactions[getReactionIndex(reacName)].getReaction(containsReaction(reacName));
+	}
+	
+	public ReactionGroup getReactionGroupFromReaction(String reacName){
+		return this.reactions[getReactionIndex(reacName)];
 	}
 
 	public int getTotalNumOfReactions() {
@@ -154,6 +143,13 @@ public class CompressedMetabolicNetwork extends AbstractMetabolicNetwork {
 	}
 	public void setSubMatrix(double[][] subMatrix) {
 		this.subMatrix = subMatrix;
+	}
+	public ReactionGroup[] getReactionGroups() {
+		return reactions;
+	}
+	@Override
+	public ReactionConstraint getBound(int index) {
+		return this.reactions[index].getBounds();
 	}
 
 }

@@ -1,24 +1,3 @@
-/*******************************************************************************
- * Copyright 2016
- * CEB Centre of Biological Engineering
- * University of Minho
- *
- * This is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code. If not, see http://www.gnu.org/licenses/
- *
- * Created inside the BIOSYSTEMS Research Group
- * (http://www.ceb.uminho.pt/biosystems)
- *******************************************************************************/
 package pt.uminho.ceb.biosystems.mcslibrary.metabolic.fva;
 
 import java.io.BufferedWriter;
@@ -37,7 +16,7 @@ import pt.uminho.ceb.biosystems.mcslibrary.utilities.Utilities;
 
 
 public class FluxVariabilityAnalysisResult {
-	private static double epsilon = 1e-9;
+	private double epsilon;
 	private AbstractMetabolicNetwork metaNet;
 	private HashMap<Integer, Pair<Double,Double>> results;
 	private boolean[] blockedReactions;
@@ -46,6 +25,17 @@ public class FluxVariabilityAnalysisResult {
 	public FluxVariabilityAnalysisResult(AbstractMetabolicNetwork metaNet, HashMap<Integer, Pair<Double, Double>> results) {
 		this.metaNet = metaNet;
 		this.results = results;
+		this.epsilon = 1e-9;
+		this.blockedReactions = getBlockedReactions();
+	}
+	
+	public FluxVariabilityAnalysisResult(AbstractMetabolicNetwork metaNet, double[][] resultArray) {
+		this.metaNet = metaNet;
+		this.results = new HashMap<Integer, Pair<Double,Double>>();
+		for (int i = 0; i < resultArray[0].length; i++) {
+			results.put(i, new Pair<Double,Double>(resultArray[0][i], resultArray[1][i]));
+		}
+		this.epsilon = 1e-9;
 		this.blockedReactions = getBlockedReactions();
 	}
 
@@ -107,7 +97,7 @@ public class FluxVariabilityAnalysisResult {
 	private boolean[] getBlockedReactions(){
 		boolean[] res = new boolean[this.metaNet.getNumOfReactions()];
 		for (int i = 0; i < metaNet.getNumOfReactions(); i++) {
-			if (Math.abs(minFlux(i)) < epsilon && Math.abs(maxFlux(i)) < epsilon) {
+			if (maxFlux(i) < epsilon && minFlux(i) > -epsilon) {
 				res[i] = true;
 			} else {
 				res[i] = false;
@@ -164,7 +154,21 @@ public class FluxVariabilityAnalysisResult {
 	}
 	
 	public boolean isEssential(int index){
-		if (maxFlux(index) < -Utilities.EPSILON || minFlux(index) > Utilities.EPSILON) {
+		boolean upperEssential = maxFlux(index) > epsilon && minFlux(index) > epsilon;
+		boolean lowerEssential = maxFlux(index) < -epsilon && minFlux(index) < -epsilon;
+
+		if (upperEssential || lowerEssential) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean isEssential(int index, double epsilon){
+		boolean upperEssential = maxFlux(index) > epsilon && minFlux(index) > epsilon;
+		boolean lowerEssential = maxFlux(index) < -epsilon && minFlux(index) < -epsilon;
+
+		if (upperEssential || lowerEssential) {
 			return true;
 		} else {
 			return false;
@@ -177,7 +181,13 @@ public class FluxVariabilityAnalysisResult {
 	public void writeToFile(String path) throws IOException{
 		BufferedWriter bf = new BufferedWriter(new FileWriter(path));
 		for (int i = 0; i < metaNet.getNumOfReactions(); i++) {
-			String string = i+","+minFlux(i)+","+maxFlux(i);
+			String rName = "";
+			if (metaNet.getClass() == DefaultMetabolicNetwork.class) {
+				rName = ((DefaultMetabolicNetwork) metaNet).getReaction(i).getName();
+			} else if (metaNet.getClass() == CompressedMetabolicNetwork.class) {
+				rName = ((CompressedMetabolicNetwork) metaNet).getReactionGroup(i).toString();
+			}
+			String string = rName+","+minFlux(i)+","+maxFlux(i);
 			bf.write(string+"\n");
 		}
 		bf.flush();
@@ -189,13 +199,13 @@ public class FluxVariabilityAnalysisResult {
 		Set<String> res = new HashSet<String>();
 		if (metaNet.getClass() == DefaultMetabolicNetwork.class) {
 			for (int i = 0; i < metaNet.getNumOfReactions(); i++) {
-				if (blockedReactions[i]) {
+				if (isEssential(i)) {
 					res.add(((DefaultMetabolicNetwork) metaNet).getReaction(i).getName());
 				}
 			}
 		} else if (metaNet.getClass() == CompressedMetabolicNetwork.class){
 			for (int i = 0; i < metaNet.getNumOfReactions(); i++) {
-				if (blockedReactions[i]) {
+				if (isEssential(i)) {
 					ReactionGroup r = ((CompressedMetabolicNetwork) metaNet).getReactionGroup(i);
 					for (int j = 0; j < r.size(); j++) {
 						res.add(r.getReaction(j).getName());
