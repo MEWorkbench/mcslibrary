@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<meworkbench.version>1.0.2-SNAPSHOT</meworkbench.version>
+		<meworkbench.version>1.1.0-SNAPSHOT</meworkbench.version>
 		<cplex.jar.path>${env.CPLEX_HOME}/lib/cplex.jar</cplex.jar.path>
 	</properties>
 
@@ -92,29 +92,20 @@
 
 	<repositories>
 		<repository>
-			<id>biosystems-releases</id>
-			<url>http://193.137.11.210/nexus/content/repositories/biosystems-releases</url>
+			<id>snapshots</id>
+			<name>maven snapshots repo</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</repository>
-		<repository>
-			<id>biosystems-snapshots</id>
-			<url>http://193.137.11.210/nexus/content/repositories/biosystems-snapshots</url>
-		</repository>
-
-		<!-- <repository> -->
-		<!-- <id>central</id> -->
-		<!-- <name>Central</name> -->
-		<!-- <url>http://repo.maven.apache.org/maven2</url> -->
-		<!-- </repository> -->
 	</repositories>
 
 	<distributionManagement>
-		<snapshotRepository>
-			<id>biosystems-snapshots</id>
-			<url>http://193.137.11.210/nexus/content/repositories/biosystems-snapshots</url>
-		</snapshotRepository>
 		<repository>
-			<id>biosystems-releases</id>
-			<url>http://193.137.11.210/nexus/content/repositories/biosystems-releases</url>
+			<id>oss.sonatype.org</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
+		<snapshotRepository>
+			<id>oss.sonatype.org</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
 	</distributionManagement>
 </project>

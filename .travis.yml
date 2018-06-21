@@ -1,0 +1,17 @@
+language: java
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+
+install:
+    - sudo apt-get install -qq sshpass
+
+script: echo "not testing"
+
+deploy:
+    provider: script
+    script:
+        - build/deploy.sh $TRAVIS_BRANCH
+    on:
+        all_branches: true
+        condition: $TRAVIS_BRANCH =~ ^dev|master$

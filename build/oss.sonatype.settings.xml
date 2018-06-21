@@ -1,0 +1,49 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                          http://maven.apache.org/xsd/settings-1.0.0.xsd">
+	<localRepository>LOCAL_M2</localRepository>
+	<interactiveMode />
+	<usePluginRegistry />
+	<offline />
+	<pluginGroups />
+	<servers>
+		<server>
+			<id>DEPLOYMENT_REPO_ID</id>
+			<username>OSS_SONATYPE_USER</username>
+			<password>OSS_SONATYPE_PASS</password>
+		</server>
+	</servers>
+	<mirrors />
+	<proxies />
+	<profiles>
+		<profile>
+			<id>oss.sonatype</id>
+			<repositories>
+				<repository>
+					<id>snapshots</id>
+					<name>oss sonatype snapshots</name>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>releases</id>
+					<name>oss sonatype releases</name>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+			</repositories>
+
+		</profile>
+	</profiles>
+	<activeProfiles>
+		<activeProfile>oss.sonatype</activeProfile>
+	</activeProfiles>
+</settings>
