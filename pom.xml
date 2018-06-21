@@ -15,7 +15,7 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<meworkbench.version>1.1.0-SNAPSHOT</meworkbench.version>
-		<cplex.jar.path>${env.CPLEX_HOME}/lib/cplex.jar</cplex.jar.path>
+		<cplex.jar.path>/Users/pvilaca/Applications/IBM/ILOG/CPLEX_Studio125/cplex/lib/cplex.jar</cplex.jar.path>
 	</properties>
 
 	<dependencies>
@@ -26,6 +26,11 @@
 			<version>${meworkbench.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>pt.uminho.ceb.biosystems.mew</groupId>
+			<artifactId>mew-solvers-cplex</artifactId>
+			<version>${meworkbench.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.ibm.ilog</groupId>
@@ -65,36 +70,22 @@
 		</dependency>
 
 	</dependencies>
-<!-- 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.10</version>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<inherited>false</inherited>
-						<configuration>
-							<stripVersion>true</stripVersion>
-							<excludeGroupIds>org.optflux</excludeGroupIds>
-							<excludeArtifactIds>cplex</excludeArtifactIds>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build> -->
+	<!-- <build> <plugins> <plugin> <groupId>org.apache.maven.plugins</groupId> 
+		<artifactId>maven-dependency-plugin</artifactId> <version>2.10</version> 
+		<executions> <execution> <id>copy-dependencies</id> <phase>package</phase> 
+		<goals> <goal>copy-dependencies</goal> </goals> <inherited>false</inherited> 
+		<configuration> <stripVersion>true</stripVersion> <excludeGroupIds>org.optflux</excludeGroupIds> 
+		<excludeArtifactIds>cplex</excludeArtifactIds> </configuration> </execution> 
+		</executions> </plugin> </plugins> </build> -->
 
 	<repositories>
 		<repository>
 			<id>snapshots</id>
 			<name>maven snapshots repo</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 
