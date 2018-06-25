@@ -448,9 +448,7 @@ public class MCSPipeline {
 			ep = initialize();
 		}
 		DefaultEnumerationResult mcs = null;
-		
-		
-		
+
 		try {
 			AbstractEnumerationResult reslt = null;
 			
@@ -477,7 +475,8 @@ public class MCSPipeline {
 			for (YieldConstraint yieldConstraint : desired_yields) {
 				System.out.println("\t"+yieldConstraint);
 			}
-			if (constrained) {
+			
+			if(constrained) {
 				mcs = new CPLEXEnumerationFilter(ep, mcs).calculateFilteredResults();
 			}
 			
