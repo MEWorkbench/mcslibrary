@@ -13,6 +13,11 @@
 			<username>OSS_SONATYPE_USER</username>
 			<password>OSS_SONATYPE_PASS</password>
 		</server>
+		<server>
+			<id>releases</id>
+			<username>OSS_SONATYPE_USER</username>
+			<password>OSS_SONATYPE_PASS</password>
+		</server>
 	</servers>
 	<mirrors />
 	<proxies />
