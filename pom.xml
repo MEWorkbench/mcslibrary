@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<meworkbench.version>1.1.1-SNAPSHOT</meworkbench.version>
+		<meworkbench.version>1.1.0-SNAPSHOT</meworkbench.version>
 		<cplex.jar.path>/Users/pvilaca/Applications/IBM/ILOG/CPLEX_Studio125/cplex/lib/cplex.jar</cplex.jar.path>
 	</properties>
 
@@ -77,6 +77,77 @@
 		<configuration> <stripVersion>true</stripVersion> <excludeGroupIds>org.optflux</excludeGroupIds> 
 		<excludeArtifactIds>cplex</excludeArtifactIds> </configuration> </execution> 
 		</executions> </plugin> </plugins> </build> -->
+
+	<build>
+		<plugins>
+			<!-- To generate javadoc -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>release-oss-repo</id>
+			<build>
+				<plugins>
+					<!-- To sign the artifacts -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- To release to Maven central -->
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.8</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>oss.sonatype.org</serverId>
+							<nexusUrl>https://oss.sonatype.org</nexusUrl>
+							<stagingProfileId>776a2defaa67fe</stagingProfileId>
+							<skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>

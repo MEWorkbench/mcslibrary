@@ -9,41 +9,21 @@
 	<pluginGroups />
 	<servers>
 		<server>
-			<id>DEPLOYMENT_REPO_ID</id>
+			<id>oss.sonatype.org</id>
 			<username>OSS_SONATYPE_USER</username>
 			<password>OSS_SONATYPE_PASS</password>
 		</server>
 	</servers>
 	<mirrors />
 	<proxies />
+
 	<profiles>
 		<profile>
-			<id>oss.sonatype</id>
-			<repositories>
-				<repository>
-					<id>snapshots</id>
-					<name>oss sonatype snapshots</name>
-					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-					<snapshots>
-						<enabled>true</enabled>
-					</snapshots>
-				</repository>
-				<repository>
-					<id>releases</id>
-					<name>oss sonatype releases</name>
-					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-					<snapshots>
-						<enabled>false</enabled>
-					</snapshots>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-				</repository>
-			</repositories>
-
+			<id>gpg</id>
+			<properties>
+				<gpg.executable>GPG_EXECUTABLE</gpg.executable>
+				<gpg.passphrase>GPG_PASSPHRASE</gpg.passphrase>
+			</properties>
 		</profile>
 	</profiles>
-	<activeProfiles>
-		<activeProfile>oss.sonatype</activeProfile>
-	</activeProfiles>
 </settings>

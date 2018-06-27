@@ -1,17 +1,47 @@
 language: java
+
+notifications:
+  email: false
+
 cache:
   directories:
-    - $HOME/.gradle/caches/
+    - .autoconf
+    - $HOME/.m2
+    - $HOME/lib
 
 install:
-    - sudo apt-get install -qq sshpass
+  - export M2_HOME=$HOME/.m2
+  - cp build/oss.sonatype.settings.xml $M2_HOME/settings.xml
+  - sed -i s,LOCAL_M2,$M2_HOME,g ${M2_HOME}/settings.xml
+  - sed -i s/OSS_SONATYPE_USER/$OSS_SONATYPE_USER/g ${M2_HOME}/settings.xml
+  - sed -i s/OSS_SONATYPE_PASS/$OSS_SONATYPE_PASS/g ${M2_HOME}/settings.xml
+  - sed -i s/DEPLOYMENT_REPO_ID/$DEPLOYMENT_REPO_ID/g ${M2_HOME}/settings.xml
+  - sed -i s,GPG_EXECUTABLE,$GPG_EXECUTABLE,g ${M2_HOME}/settings.xml
+  - sed -i s,GPG_PASSPHRASE,$GPG_PASSPHRASE,g ${M2_HOME}/settings.xml
+  - sudo apt-get install -qq sshpass
+  - sshpass -p ${SSH_PASS} scp -v -o "StrictHostKeyChecking no" ${SSH_USER}@${SERVER_WITH_CPLEX}:cplex.jar $HOME/lib/cplex.jar
+    
+script: 
+  - mvn install -Dcplex.jar.path=$HOME/lib/cplex.jar -DskipTests=true -Dmaven.javadoc.skip=true
 
-script: echo "not testing"
-
+    
+before_deploy:
+  - mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
+  - export project_version=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
+  - mvn help:evaluate -N -Dexpression=project.name|grep -v '\['
+  - export project_name=$(mvn help:evaluate -N -Dexpression=project.name|grep -v '\[')  
+  
 deploy:
-    provider: script
-    script:
-        - build/deploy.sh $TRAVIS_BRANCH
+  - provider: releases
+    api_key:
+      secure: e5h63PxHDuIKa0RWCC13gIxJpm4QP5TF/5bzIf+Bm0adZZYcpqtsBGx6/H0yrUNwFOrZPxo4aTlQxFwm5OETfsZdcjaqbTlSuaa1xpvQ17KDHurKnLbDQgIktgQ7qWN6QUCo359XydFggmqoIMlctLK/45+P9ZkguBxC0DpnLKgSyTYwKyZMqqEs+fXXoFbFyeeKphGlGkFpi+yVJVhRUMiXogtkpGXZS/MgqQdK3vf1d0PYSAnlTd2zj/a7M+t3KssQLHIkSESfB/A9dim1rUOByYIpY4Dac6hvDoVzuHdXQ20/yvnymcWy9mkHUHsZvcUYl5sweRLOZXQRInKo5K9S18JlqGYHKsQduNfT0qbYmbzSuWjqfFnZn21LgJUts0vY4xEgUj3Y9fNqv74Rp7KluCIPUUruQ7rVbQKfmcbfUCHijKPc4yDOuyVpyb59zPaZsPpXo4paTLv7403nSgk85kyeUDQp1Ia5huVLbu1cqiCLJ0iTTefJHCPCf7NGdBUN/llNDPENGcczhPRqhHLmsWyzwiUE9u6QKX4pY1ZXdMMfJtiwaE/FNuTn0n3aUYXmj4rzbB5QvsTtw9h9lCCYFwCmiALmzyUqUu9NO0NrkBbzDATW8OUsaC7H1XT0uiCOZ/1JaNoGCfxdlQIaBgOiR7tS4e5Gqd2UCdUVUrs=
+    file: target/${project_name}-${project_version}.jar
     on:
-        all_branches: true
-        condition: $TRAVIS_BRANCH =~ ^dev|master$
+      tags: true
+    name: $project_version
+  - provider: script
+    script: mvn deploy -Dcplex.jar.path=$HOME/lib/cplex.jar -DskipTests=true -Dmaven.javadoc.skip=true
+    on:
+      branch: dev
+        
+ 
