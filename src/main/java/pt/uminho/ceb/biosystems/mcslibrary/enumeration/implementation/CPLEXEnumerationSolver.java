@@ -93,7 +93,7 @@ public class CPLEXEnumerationSolver extends AbstractEnumerationSolver {
 	 * Sets the appropriate CPLEX parameters for minimal cut set enumeration.
 	 *
 	 * @param cplex An IloCplex instance
-	 * @throws IloException 
+	 * @throws IloException exception
 	 */
 	// cplex parameters are set here
 	public void setCplexParams(IloCplex cplex) throws IloException {

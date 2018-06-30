@@ -41,7 +41,7 @@ public abstract class AbstractEnumerationSolver {
 	 *
 	 * @param maxsize - An integer specifying the maximum size of the minimal cut sets to be calculated
 	 * @return The enumeration result as an instance of a subclass of AbstractEnumerationResult
-	 * @throws Exception
+	 * @throws Exception exception
 	 */
 	public abstract AbstractEnumerationResult solve(int maxsize) throws Exception;
 }

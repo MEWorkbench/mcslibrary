@@ -66,7 +66,6 @@ public class EnumerationProblem implements Serializable{
  * @param desiredFluxes - An array of {@link FluxBound} corresponding to the desired fluxes
  * @param undesiredYields - An array of {@link YieldConstraint} corresponding to undesired yield ratios
  * @param desiredYields - An array of {@link YieldConstraint} corresponding to desired yield ratios
- * @param excReactions
  */
 	public EnumerationProblem(AbstractMetabolicNetwork metanet, FluxBound[] undesiredFluxes, FluxBound[] desiredFluxes, YieldConstraint[] undesiredYields, YieldConstraint[] desiredYields, Reaction[] excReactions) {
 		this.metanet = metanet;

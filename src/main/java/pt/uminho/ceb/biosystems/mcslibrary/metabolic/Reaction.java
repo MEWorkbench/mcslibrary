@@ -24,7 +24,6 @@ public class Reaction implements Serializable{
 	 *
 	 * @param id - Reaction id/name.
 	 * @param limits - {@link ReactionConstraint} indicating the limits imposed by the model
-	 * @param isExchange - {@link Boolean} indicating whether this reaction is a drain reaction. Null unless accessed from a {@link DefaultMetabolicNetwork}.
 	 */
 	public Reaction(String id, ReactionConstraint limits) {
 		this.id = id;
