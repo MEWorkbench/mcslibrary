@@ -29,6 +29,14 @@ public class RobustnessCriteria {
 	
 
 	public RobustnessCriteria(String objective, String decisive, double fractionOfMinimum, String senseObj, String senseDec, String name) {
+		/*
+		 * Defines a single criteria for robustness.
+		 * objective: Reaction ID representing the flux to be maximized
+		 * decisive: Reaction ID containing the value to be evaluated (if this value is above 0, the solution is compliant)
+		 * fractionOfMinimum: percentage of the objective value at which the decisive value will be checked
+		 * senseObj and senseDec: optimization senses for the objective and decisive values (either "min" or "max")
+		 * name: String that identifies this RobustnessCriteria
+		 */
 		this.objective = objective;
 		this.fractionOfMinimum = fractionOfMinimum;
 		this.decisive = decisive;
