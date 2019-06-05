@@ -19,7 +19,7 @@ install:
   - sed -i s,GPG_EXECUTABLE,$GPG_EXECUTABLE,g ${M2_HOME}/settings.xml
   - sed -i s,GPG_PASSPHRASE,$GPG_PASSPHRASE,g ${M2_HOME}/settings.xml
   - sudo apt-get install -qq sshpass
-  - sshpass -p ${SSH_PASS} scp -v -o "StrictHostKeyChecking no" ${SSH_USER}@${SERVER_WITH_CPLEX}:cplex.jar $HOME/lib/cplex.jar
+  - wget -O $HOME/lib/cplex.jar https://nexus.bio.di.uminho.pt/service/local/repositories/thirdparty/content/com/ibm/ilog/cplex/1.2.5.1/cplex-1.2.5.1.jar
     
 script: 
   - mvn install -Dcplex.jar.path=$HOME/lib/cplex.jar -DskipTests=true -Dmaven.javadoc.skip=true
