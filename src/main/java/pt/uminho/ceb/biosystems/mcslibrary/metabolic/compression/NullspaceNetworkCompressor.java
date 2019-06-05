@@ -150,12 +150,12 @@ public class NullspaceNetworkCompressor {
 		DefaultMetabolicNetwork NSupNBlockSubNet = blocked.size() > 0 ? getSubnetworkExc(nonSuppressedReactSubMatrix, blocked) : nonSuppressedReactSubMatrix;
 		System.out.println(System.currentTimeMillis()-starttime);
 		kernel = blocked.size() > 0 ? MatrixTools.computeKernel(NSupNBlockSubNet.getStoichMatrix()) : kernel;
-		MatrixTools.writeCSV(NSupNBlockSubNet.getStoichMatrix(), "/home/skapur/MEOCloud/Projectos/DeYeast/Models/iMM904/iMM904_peroxisome.xml.mat.csv");
+		// MatrixTools.writeCSV(NSupNBlockSubNet.getStoichMatrix(), "/home/skapur/MEOCloud/Projectos/DeYeast/Models/iMM904/iMM904_peroxisome.xml.mat.csv");
 		System.out.println("Stage 5: generate CR matrix");
-		MatrixTools.writeCSV(kernel, "/home/skapur/MEOCloud/Projectos/DeYeast/Models/iMM904/iMM904_peroxisome.xml.kernel.csv");
+		// MatrixTools.writeCSV(kernel, "/home/skapur/MEOCloud/Projectos/DeYeast/Models/iMM904/iMM904_peroxisome.xml.kernel.csv");
 		double crtol = kernel.length*Utilities.EPSILON;
 		double[][] cr = generateSubsetMatrix(kernel, crtol);
-		MatrixTools.writeCSV(cr, "/home/skapur/MEOCloud/Projectos/DeYeast/Models/iMM904/iMM904_peroxisome.xml.crmat.csv");
+		// MatrixTools.writeCSV(cr, "/home/skapur/MEOCloud/Projectos/DeYeast/Models/iMM904/iMM904_peroxisome.xml.crmat.csv");
 
 		System.out.println(System.currentTimeMillis()-starttime);
 		System.out.println("Stage 6: generate subsets");
