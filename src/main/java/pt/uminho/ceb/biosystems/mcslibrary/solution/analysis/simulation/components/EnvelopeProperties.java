@@ -19,6 +19,12 @@ public class EnvelopeProperties {
 
 
 	public EnvelopeProperties(String objective, String pivot, String confName, int steps) {
+		/*
+		 * objective: Reaction ID representing the flux to maximize/minimize
+		 * pivot: Reaction ID representing the flux to vary along its range
+		 * confName: String with the name of this configuration
+		 * steps: Number of steps to divide the admissible range for the pivot reaction
+		 */
 		this.objective = objective;
 		this.pivot = pivot;
 		this.confName = confName;
